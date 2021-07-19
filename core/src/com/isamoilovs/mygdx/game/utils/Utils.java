@@ -1,4 +1,4 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.utils;
 
 public class Utils {
     public static final float pi = 90;

@@ -2,15 +2,17 @@ package com.isamoilovs.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Map {
-    private Texture grassTexture;
+    private TextureRegion grassTexture;
     public static final int SIZE_X = 40;
     public static final int SIZE_Y = 23;
     public static final int CELL_SIZE = 32;
 
-    public Map() {
-        this.grassTexture = new Texture("grass.jpg");
+    public Map(TextureAtlas atlas) {
+        this.grassTexture = atlas.findRegion("grass");
     }
 
     public void render(SpriteBatch batch) {

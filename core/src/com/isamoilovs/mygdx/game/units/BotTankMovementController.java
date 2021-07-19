@@ -2,17 +2,16 @@ package com.isamoilovs.mygdx.game.units;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.isamoilovs.mygdx.game.utils.Direction;
 
-//Подумать насчет соответствия инкапсуляции
-
-public class PlayerTankMovementController {
+public class BotTankMovementController {
+    private BotTank tank;
     private final float MOVE_SPEED = 3;
-    private Tank tank;
-    PlayerTankMovementController(Tank tank) {
+    BotTankMovementController(BotTank tank) {
         this.tank = tank;
     }
     public void checkMovement(float dt) {
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if(tank.preferredDirection == Direction.LEFT) {
             while (tank.rotationAngle != 180) {
                 while (tank.rotationAngle < 180) {
                     tank.getTankAnimation().update(dt);
@@ -34,8 +33,7 @@ public class PlayerTankMovementController {
                 tank.getTankAnimation().update(dt);
             }
 
-
-        } else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        } else if(tank.preferredDirection == Direction.RIGHT) {
             while (tank.rotationAngle != 0) {
                 while (tank.rotationAngle <= 180) {
                     tank.getTankAnimation().update(dt);
@@ -50,8 +48,6 @@ public class PlayerTankMovementController {
                     return;
                 }
             }
-            tank.rotationAngle = 0;
-
             if(tank.position.x > Gdx.graphics.getWidth()) {
                 tank.position.x = Gdx.graphics.getWidth();
                 return;
@@ -60,7 +56,7 @@ public class PlayerTankMovementController {
                 tank.getTankAnimation().update(dt);
             }
 
-        } else if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+        } else if(tank.preferredDirection == Direction.UP) {
             while (tank.rotationAngle != 90) {
                 while (tank.rotationAngle < 90 || tank.rotationAngle - 180 >= 90) {
                     tank.getTankAnimation().update(dt);
@@ -74,7 +70,6 @@ public class PlayerTankMovementController {
                     return;
                 }
             }
-            tank.rotationAngle = 90;
             if(tank.position.y > Gdx.graphics.getHeight()) {
                 tank.position.y = Gdx.graphics.getHeight();
                 return;
@@ -83,7 +78,7 @@ public class PlayerTankMovementController {
                 tank.position.y += tank.speed * dt;
             }
 
-        } else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        } else if(tank.preferredDirection == Direction.DOWN) {
             while (tank.rotationAngle != 270) {
                 while (tank.rotationAngle <= 90 || tank.rotationAngle > 270) {
                     tank.getTankAnimation().update(dt);
@@ -107,5 +102,4 @@ public class PlayerTankMovementController {
             }
         }
     }
-
 }
