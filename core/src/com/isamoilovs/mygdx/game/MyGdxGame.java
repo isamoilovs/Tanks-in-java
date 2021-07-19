@@ -2,13 +2,15 @@ package com.isamoilovs.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.isamoilovs.mygdx.game.units.PlayerTank;
+import com.isamoilovs.mygdx.game.units.PlayerTankWithMovableTurret;
+import com.isamoilovs.mygdx.game.units.Tank;
 
 public class MyGdxGame extends ApplicationAdapter {
 	private SpriteBatch batch;
-	private Tank tank;
+	private PlayerTank tank;
 	private BulletEmitter bulletEmitter;
 	private Map map;
 
@@ -19,9 +21,9 @@ public class MyGdxGame extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		tank = new Tank(this);
 		bulletEmitter = new BulletEmitter();
 		map = new Map();
+		tank = new PlayerTank(this);
 	}
 
 	@Override

@@ -1,27 +1,27 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.units;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 //Подумать насчет соответствия инкапсуляции
 
-public class MovementController {
+public class PlayerTankMovementController {
     private Tank tank;
-    MovementController(Tank tank) {
+    PlayerTankMovementController(Tank tank) {
         this.tank = tank;
     }
     public void checkMovement(float dt) {
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            while (tank.rotation != 180) {
-                while (tank.rotation < 180) {
+            while (tank.rotationAngle != 180) {
+                while (tank.rotationAngle < 180) {
                     tank.getTankAnimation().update(dt);
-                    tank.rotation += 3;
+                    tank.rotationAngle += 3;
                     return;
                 }
-                while (tank.rotation > 180) {
+                while (tank.rotationAngle > 180) {
 
                     tank.getTankAnimation().update(dt);
-                    tank.rotation -= 3;
+                    tank.rotationAngle -= 3;
                     return;
                 }
             }
@@ -29,57 +29,57 @@ public class MovementController {
             tank.getTankAnimation().update(dt);
 
         } else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            while (tank.rotation != 0) {
-                while (tank.rotation <= 180) {
+            while (tank.rotationAngle != 0) {
+                while (tank.rotationAngle <= 180) {
                     tank.getTankAnimation().update(dt);
-                    tank.rotation -= 3;
+                    tank.rotationAngle -= 3;
 
                     return;
                 }
-                while (tank.rotation >= 180) {
+                while (tank.rotationAngle >= 180) {
                     tank.getTankAnimation().update(dt);
-                    tank.rotation += 3;
-                    tank.rotation = (tank.rotation >= 360) ? tank.rotation - 360 : tank.rotation;
+                    tank.rotationAngle += 3;
+                    tank.rotationAngle = (tank.rotationAngle >= 360) ? tank.rotationAngle - 360 : tank.rotationAngle;
                     return;
                 }
             }
-            tank.rotation = 0;
+            tank.rotationAngle = 0;
             tank.getTankAnimation().update(dt);
             tank.position.x += tank.speed*dt;
 
         } else if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            while (tank.rotation != 90) {
-                while (tank.rotation < 90 || tank.rotation - 180 >= 90) {
+            while (tank.rotationAngle != 90) {
+                while (tank.rotationAngle < 90 || tank.rotationAngle - 180 >= 90) {
                     tank.getTankAnimation().update(dt);
-                    tank.rotation += 3;
-                    tank.rotation = (tank.rotation >= 360) ? tank.rotation - 360 : tank.rotation;
+                    tank.rotationAngle += 3;
+                    tank.rotationAngle = (tank.rotationAngle >= 360) ? tank.rotationAngle - 360 : tank.rotationAngle;
                     return;
                 }
-                while (tank.rotation > 90 && tank.rotation <= 270) {
+                while (tank.rotationAngle > 90 && tank.rotationAngle <= 270) {
                     tank.getTankAnimation().update(dt);
-                    tank.rotation -= 3;
+                    tank.rotationAngle -= 3;
                     return;
                 }
             }
-            tank.rotation = 90;
+            tank.rotationAngle = 90;
             tank.getTankAnimation().update(dt);
             tank.position.y += tank.speed*dt;
 
         } else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            while (tank.rotation != 270) {
-                while (tank.rotation <= 90 || tank.rotation > 270) {
+            while (tank.rotationAngle != 270) {
+                while (tank.rotationAngle <= 90 || tank.rotationAngle > 270) {
                     tank.getTankAnimation().update(dt);
-                    tank.rotation -= 3;
-                    tank.rotation = (tank.rotation <= 0) ? tank.rotation + 360 : tank.rotation;
+                    tank.rotationAngle -= 3;
+                    tank.rotationAngle = (tank.rotationAngle <= 0) ? tank.rotationAngle + 360 : tank.rotationAngle;
                     return;
                 }
-                while (tank.rotation > 90 && tank.rotation < 270) {
+                while (tank.rotationAngle > 90 && tank.rotationAngle < 270) {
                     tank.getTankAnimation().update(dt);
-                    tank.rotation += 3;
+                    tank.rotationAngle += 3;
                     return;
                 }
             }
-            tank.rotation = 270;
+            tank.rotationAngle = 270;
             tank.getTankAnimation().update(dt);
             tank.position.y -= tank.speed*dt;
         }

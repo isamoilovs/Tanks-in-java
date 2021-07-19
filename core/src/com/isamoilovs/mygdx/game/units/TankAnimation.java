@@ -1,11 +1,7 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.units;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class TankAnimation {
     private Array<TextureRegion> frames;
