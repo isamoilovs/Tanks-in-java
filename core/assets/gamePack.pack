@@ -1,0 +1,61 @@
+
+textures1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+stones
+  rotate: false
+  xy: 0, 0
+  size: 160, 32
+  orig: 160, 32
+  offset: 0, 0
+  index: -1
+tank1anim
+  rotate: false
+  xy: 0, 32
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+emptyTankAtlas
+  rotate: false
+  xy: 0, 64
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+emptyBotTankAtlas
+  rotate: false
+  xy: 0, 96
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+grass
+  rotate: false
+  xy: 160, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+cannon
+  rotate: false
+  xy: 192, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+bullet
+  rotate: false
+  xy: 224, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+hp
+  rotate: false
+  xy: 224, 16
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1

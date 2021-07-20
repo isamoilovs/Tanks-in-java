@@ -17,6 +17,11 @@ public abstract class Tank {
     Weapon weapon;
     MyGdxGame game;
     TankAnimation tankAnimation;
+
+    public TankOwner getOwnerType() {
+        return ownerType;
+    }
+
     TankOwner ownerType;
     float cannonRotation;
 

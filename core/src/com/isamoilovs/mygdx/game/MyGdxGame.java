@@ -17,7 +17,6 @@ public class MyGdxGame extends ApplicationAdapter {
 	private PlayerTankWithMovableTurret tank;
 	private BulletEmitter bulletEmitter;
 	private Map map;
-	private BotTank bt;
 	private BotEmitter botEmitter;
 	private float gameTimer;
 	private static final boolean FRIENDLY_FIRE = false;
@@ -69,21 +68,28 @@ public class MyGdxGame extends ApplicationAdapter {
 				for (int j = 0; j < botEmitter.getBots().length; j++) {
 					BotTank bot = botEmitter.getBots()[j];
 					if(bot.isActive()) {
-						//if(bullet.getOwner()!= bot && bot.getCircle().contains(bullet.getPosition())){
-						if(bullet.getOwner() instanceof PlayerTank && bot.getCircle().contains(bullet.getPosition())){
+						if(checkBulletOwner(bot, bullet) && bot.getCircle().contains(bullet.getPosition())){
 							bullet.disActivate();
 							bot.takeDamage(bullet.getDamage());
+							break;
 						}
 					}
 				}
+				if(checkBulletOwner(tank, bullet) && tank.getCircle().contains(bullet.getPosition())) {
+					bullet.disActivate();
+					tank.takeDamage(bullet.getDamage());
+				}
+				map.checkWallsAndBulletsCollisions(bullet);
 			}
 		}
 	}
-//	public boolean checkBulletOwner(Tank tank, Bullet bullet) {
-//		if(!FRIENDLY_FIRE) {
-//			tank
-//		}
-//	}
+	public boolean checkBulletOwner(Tank tank, Bullet bullet) {
+		if(!FRIENDLY_FIRE) {
+			return tank.getOwnerType() != bullet.getOwner().getOwnerType();
+		} else {
+			return tank != bullet.getOwner();
+		}
+	}
 
 	public PlayerTank getPlayer() {
 		return tank;
