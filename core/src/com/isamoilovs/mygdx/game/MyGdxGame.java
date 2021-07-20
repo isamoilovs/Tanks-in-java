@@ -51,7 +51,7 @@ public class MyGdxGame extends ApplicationAdapter {
 
 	public void update(float dt) {
 		gameTimer += dt;
-		if(gameTimer >= 2.0f) {
+		if(gameTimer >= 10.0f) {
 			gameTimer = 0;
 			botEmitter.activate(MathUtils.random(0, Gdx.graphics.getWidth()), MathUtils.random(0, Gdx.graphics.getHeight()));
 		}
@@ -94,6 +94,11 @@ public class MyGdxGame extends ApplicationAdapter {
 	public PlayerTank getPlayer() {
 		return tank;
 	}
+
+	public Map getMap() {
+		return map;
+	}
+
 
 	@Override
 	public void dispose () {

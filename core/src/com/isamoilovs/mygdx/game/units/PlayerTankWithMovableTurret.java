@@ -32,7 +32,7 @@ public class PlayerTankWithMovableTurret extends PlayerTank implements IRotateCa
         fireTimer += dt;
         checkMovement(dt);
         if(Gdx.input.isTouched()) {
-            fire(dt);
+            fire();
         }
         float mx = Gdx.input.getX();
         float my = Gdx.graphics.getHeight() - Gdx.input.getY();

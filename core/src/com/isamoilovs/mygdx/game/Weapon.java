@@ -11,6 +11,20 @@ public class Weapon {
     private TextureRegion texture;
     private float bulletSpeed;
 
+    public float getBulletLifetime() {
+        return bulletLifetime;
+    }
+
+    private float bulletLifetime;
+
+    public float getRadius() {
+        return radius;
+    }
+
+    private float radius;
+
+
+
     public float getBulletSpeed() {
         return bulletSpeed;
     }
@@ -37,5 +51,7 @@ public class Weapon {
         this.firePeriod = 0.5f;
         this.damage = 1;
         this.bulletSpeed = 500.0f;
+        this.radius = 500.0f;
+        this.bulletLifetime = radius / bulletSpeed;
     }
 }
