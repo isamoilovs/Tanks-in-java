@@ -100,59 +100,50 @@ public class BotTank extends Tank implements IRotateCannon {
                 getTankAnimation().update(dt);
                 return;
             }
-            if (position.x < 0.0f) {
-                position.x = 0;
-            } else {
-                getTankAnimation().update(dt);
-                move(Direction.LEFT, dt);
+            if (position.x - WIDTH / 2 < 0.0f) {
+                position.x = 0 + WIDTH / 2;
             }
+            getTankAnimation().update(dt);
+            move(Direction.LEFT, dt);
 
         } else if(preferredDirection == Direction.RIGHT) {
-
             while (rotationAngle != Direction.RIGHT.getAngle()) {
                 rotationAngle = Utils.makeRotation(rotationAngle, 0, ROTATION_SPEED, dt);
                 rotationAngle = Utils.checkAngleValue(rotationAngle);
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.x > Gdx.graphics.getWidth()) {
-                position.x = Gdx.graphics.getWidth();
-            } else {
-                move(Direction.RIGHT, dt);
-                getTankAnimation().update(dt);
+            if(position.x + WIDTH / 2 > Gdx.graphics.getWidth()) {
+                position.x = Gdx.graphics.getWidth() - WIDTH / 2;
             }
+            move(Direction.RIGHT, dt);
+            getTankAnimation().update(dt);
 
         } else if(preferredDirection == Direction.UP) {
-
-
             while (rotationAngle != Direction.UP.getAngle()) {
                 rotationAngle = Utils.makeRotation(rotationAngle, 90, ROTATION_SPEED, dt);
                 rotationAngle = Utils.checkAngleValue(rotationAngle);
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.y < 0) {
-                position.y = 0;
-            } else {
-                move(Direction.UP, dt);
-                getTankAnimation().update(dt);
+            if(position.y + HEIGHT / 2 > Gdx.graphics.getHeight()) {
+                position.y = Gdx.graphics.getHeight() - HEIGHT / 2;
             }
+            move(Direction.UP, dt);
+            getTankAnimation().update(dt);
 
         } else if(preferredDirection == Direction.DOWN) {
-
-
             while (rotationAngle != Direction.DOWN.getAngle()) {
                 rotationAngle = Utils.makeRotation(rotationAngle, -90, ROTATION_SPEED, dt);
                 rotationAngle = Utils.checkAngleValue(rotationAngle);
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.y > Gdx.graphics.getHeight()) {
-                position.y = Gdx.graphics.getHeight();
-            } else {
-                move(Direction.DOWN, dt);
-                getTankAnimation().update(dt);
+            if(position.y - HEIGHT / 2 < 0) {
+                position.y = 0 + HEIGHT / 2;
             }
+            move(Direction.DOWN, dt);
+            getTankAnimation().update(dt);
         }
     }
 }

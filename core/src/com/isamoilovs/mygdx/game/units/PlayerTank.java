@@ -55,12 +55,11 @@ public class PlayerTank extends Tank{
                 getTankAnimation().update(dt);
                 return;
             }
-            if (position.x < 0.0f) {
-                position.x = 0;
-            } else {
-                getTankAnimation().update(dt);
-                move(Direction.LEFT, dt);
+            if (position.x - WIDTH / 2 < 0.0f) {
+                position.x = 0 + WIDTH / 2;
             }
+            getTankAnimation().update(dt);
+            move(Direction.LEFT, dt);
 
         } else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             while (rotationAngle != Direction.RIGHT.getAngle()) {
@@ -69,12 +68,11 @@ public class PlayerTank extends Tank{
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.x > Gdx.graphics.getWidth()) {
-                position.x = Gdx.graphics.getWidth();
-            } else {
-                move(Direction.RIGHT, dt);
-                getTankAnimation().update(dt);
+            if(position.x + WIDTH / 2 > Gdx.graphics.getWidth()) {
+                position.x = Gdx.graphics.getWidth() - WIDTH / 2;
             }
+            move(Direction.RIGHT, dt);
+            getTankAnimation().update(dt);
 
         } else if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
             while (rotationAngle != 90) {
@@ -83,12 +81,11 @@ public class PlayerTank extends Tank{
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.y < 0) {
-                position.y = 0;
-            } else {
-                move(Direction.UP, dt);
-                getTankAnimation().update(dt);
+            if(position.y + (float)(HEIGHT / 2) > Gdx.graphics.getHeight()) {
+                position.y = Gdx.graphics.getHeight() - (float)(HEIGHT / 2);
             }
+            move(Direction.UP, dt);
+            getTankAnimation().update(dt);
 
         } else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             while (rotationAngle != -90) {
@@ -97,12 +94,11 @@ public class PlayerTank extends Tank{
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.y > Gdx.graphics.getHeight()) {
-                position.y = Gdx.graphics.getHeight();
-            } else {
-                move(Direction.DOWN, dt);
-                getTankAnimation().update(dt);
+            if(position.y - (float)(HEIGHT / 2) < 0) {
+                position.y = (float)(HEIGHT / 2);
             }
+            move(Direction.DOWN, dt);
+            getTankAnimation().update(dt);
         }
     }
 }
