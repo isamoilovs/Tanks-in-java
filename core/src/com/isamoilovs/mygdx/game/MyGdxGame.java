@@ -14,11 +14,13 @@ import com.isamoilovs.mygdx.game.units.Tank;
 public class MyGdxGame extends ApplicationAdapter {
 	private TextureAtlas atlas;
 	private SpriteBatch batch;
-	private PlayerTank tank;
+	private PlayerTankWithMovableTurret tank;
 	private BulletEmitter bulletEmitter;
 	private Map map;
+	private BotTank bt;
 	private BotEmitter botEmitter;
 	private float gameTimer;
+	private static final boolean FRIENDLY_FIRE = false;
 
 	public BulletEmitter getBulletEmitter() {
 		return bulletEmitter;
@@ -31,7 +33,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		batch = new SpriteBatch();
 		bulletEmitter = new BulletEmitter(atlas);
 		map = new Map(atlas);
-		tank = new PlayerTank(this, atlas);
+		tank = new PlayerTankWithMovableTurret(this, atlas);
 		botEmitter = new BotEmitter(this, atlas);
 	}
 
@@ -67,7 +69,8 @@ public class MyGdxGame extends ApplicationAdapter {
 				for (int j = 0; j < botEmitter.getBots().length; j++) {
 					BotTank bot = botEmitter.getBots()[j];
 					if(bot.isActive()) {
-						if(bot.getCircle().contains(bullet.getPosition())){
+						//if(bullet.getOwner()!= bot && bot.getCircle().contains(bullet.getPosition())){
+						if(bullet.getOwner() instanceof PlayerTank && bot.getCircle().contains(bullet.getPosition())){
 							bullet.disActivate();
 							bot.takeDamage(bullet.getDamage());
 						}
@@ -75,6 +78,15 @@ public class MyGdxGame extends ApplicationAdapter {
 				}
 			}
 		}
+	}
+//	public boolean checkBulletOwner(Tank tank, Bullet bullet) {
+//		if(!FRIENDLY_FIRE) {
+//			tank
+//		}
+//	}
+
+	public PlayerTank getPlayer() {
+		return tank;
 	}
 
 	@Override

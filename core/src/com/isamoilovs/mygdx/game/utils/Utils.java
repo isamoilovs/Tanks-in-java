@@ -27,7 +27,7 @@ public class Utils {
                 angleFrom += rotationSpeed * dt;
             }
         }
-        if (Math.abs(angleFrom - angleTo) < 1.5f) {
+        if (Math.abs(angleFrom - angleTo) < rotationSpeed * dt) {
             angleFrom = angleTo;
         }
         return angleFrom;

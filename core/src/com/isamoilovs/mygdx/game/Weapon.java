@@ -9,9 +9,18 @@ public class Weapon {
     private float firePeriod;
     private int damage;
     private TextureRegion texture;
+    private float bulletSpeed;
+
+    public float getBulletSpeed() {
+        return bulletSpeed;
+    }
 
     public TextureRegion getTexture() {
         return texture;
+    }
+
+    public void setFirePeriod(float firePeriod) {
+        this.firePeriod = firePeriod;
     }
 
     public float getFirePeriod() {
@@ -25,7 +34,8 @@ public class Weapon {
 
     public Weapon(TextureAtlas atlas) {
         this.texture = atlas.findRegion("cannon");
-        this.firePeriod = 0.4f;
+        this.firePeriod = 0.5f;
         this.damage = 1;
+        this.bulletSpeed = 500.0f;
     }
 }
