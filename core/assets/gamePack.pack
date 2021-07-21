@@ -1,0 +1,108 @@
+
+textures1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+walls
+  rotate: false
+  xy: 2, 2
+  size: 160, 128
+  orig: 160, 128
+  offset: 0, 0
+  index: -1
+simpleButton
+  rotate: false
+  xy: 2, 132
+  size: 140, 32
+  orig: 140, 32
+  offset: 0, 0
+  index: -1
+tank1anim
+  rotate: false
+  xy: 2, 166
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+emptyTankAtlas
+  rotate: false
+  xy: 2, 200
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+emptyBotTankAtlas
+  rotate: false
+  xy: 2, 234
+  size: 128, 32
+  orig: 128, 32
+  offset: 0, 0
+  index: -1
+grass
+  rotate: false
+  xy: 164, 2
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+cursor
+  rotate: false
+  xy: 198, 2
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+cannon
+  rotate: false
+  xy: 164, 36
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+bullet
+  rotate: false
+  xy: 232, 2
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+hp
+  rotate: false
+  xy: 198, 36
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+
+walls1.png
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+stones
+  rotate: false
+  xy: 2, 2
+  size: 160, 32
+  orig: 160, 32
+  offset: 0, 0
+  index: -1
+brick
+  rotate: false
+  xy: 2, 36
+  size: 96, 32
+  orig: 96, 32
+  offset: 0, 0
+  index: -1
+water
+  rotate: false
+  xy: 164, 2
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+obsidian
+  rotate: false
+  xy: 198, 2
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
