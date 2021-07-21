@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.isamoilovs.mygdx.game.GameScreen;
 import com.isamoilovs.mygdx.game.MyGdxGame;
 import com.isamoilovs.mygdx.game.Weapon;
 import com.isamoilovs.mygdx.game.interfaces.IRotateCannon;
@@ -15,15 +17,11 @@ import com.isamoilovs.mygdx.game.utils.Utils;
 
 public class BotTank extends Tank implements IRotateCannon {
     float aiTimerTo;
-    float aiTimer = 0.0f;
+    float aiTimer;
     boolean active;
     float pursuitRadius;
-    final int ORIGIN_X;
-    final int ORIGIN_Y;
-    final int WIDTH;
-    final int HEIGHT;
-
     Direction preferredDirection;
+    Vector3 lastPosition;
 
 
     public boolean isActive() {
@@ -38,8 +36,8 @@ public class BotTank extends Tank implements IRotateCannon {
         preferredDirection = Direction.values()[MathUtils.random(0, Direction.values().length - 1)];
     }
 
-    public BotTank(MyGdxGame game, TextureAtlas atlas) {
-        super(game, atlas);
+    public BotTank(GameScreen gameScreen, TextureAtlas atlas) {
+        super(gameScreen, atlas);
         this.active = false;
         this.texture = atlas.findRegion("emptyBotTankAtlas");
         this.tankAnimation = new TankAnimation(new TextureRegion(texture), 4, 0.6f);
@@ -47,40 +45,50 @@ public class BotTank extends Tank implements IRotateCannon {
         this.speed = 100.0f;
         this.weapon = new Weapon(atlas);
         this.rotationAngle = 0.0f;
+        this.lastPosition = new Vector3(0.0f, 0.0f, 0.0f);
         this.hpMax = 5;
         this.pursuitRadius = 300.0f;
         this.hp = hpMax;
         this.aiTimerTo = 3.0f;
+        this.aiTimer = 0.0f;
         this.ownerType = TankOwner.AI;
         this.preferredDirection = Direction.UP;
-        this.ORIGIN_X = (tankAnimation.getFrame().getRegionWidth() / 2 - CORRECTOR_OF_CENTER) * MULTIPLIER;
-        this.ORIGIN_Y = (tankAnimation.getFrame().getRegionHeight()/2) * MULTIPLIER;
-        this.WIDTH = tankAnimation.getFrame().getRegionWidth() * MULTIPLIER;
-        this.HEIGHT = tankAnimation.getFrame().getRegionHeight()* MULTIPLIER;
         this.circle = new Circle(position.x, position.y, WIDTH / 2);
     }
 
     @Override
     public void update(float dt) {
-        fireTimer += dt;
         aiTimer += dt;
-        checkMovement(dt);
-        circle.setPosition(position);
         if(aiTimer >= aiTimerTo) {
             aiTimer = 0;
-            aiTimerTo = MathUtils.random(2.5f, 4.0f);
+            aiTimerTo = MathUtils.random(3.5f, 6.0f);
             preferredDirection = Direction.values()[MathUtils.random(0, Direction.values().length - 1)];
         }
 
-        float dist = this.position.dst(game.getPlayer().getPosition());
+        float dist = this.position.dst(gameScreen.getPlayer().getPosition());
+
         if(dist <= pursuitRadius) {
-            rotateCannonToPoint(game.getPlayer().getPosition().x, game.getPlayer().getPosition().y, dt);
+            rotateCannonToPoint(gameScreen.getPlayer().getPosition().x, gameScreen.getPlayer().getPosition().y, dt);
             fire();
         } else {
             cannonRotation = Utils.makeRotation(cannonRotation, rotationAngle, 180, dt);
             rotationAngle = Utils.checkAngleValue(rotationAngle);
             cannonRotation = Utils.checkAngleValue(cannonRotation);
         }
+
+        if(Math.abs(position.x - lastPosition.x) < 0.5f && Math.abs(position.y - lastPosition.y) < 0.5f && rotationAngle == preferredDirection.getAngle()) {
+            lastPosition.z += dt;
+            if(lastPosition.z > 0.2f) {
+                aiTimer += 10.0f;
+            }
+        } else {
+            lastPosition.x = position.x;
+            lastPosition.y = position.y;
+            lastPosition.z = 0.0f;
+        }
+        fireTimer += dt;
+        checkMovement(dt);
+        circle.setPosition(position);
     }
 
     public void destroy(){
@@ -94,14 +102,14 @@ public class BotTank extends Tank implements IRotateCannon {
     }
     public void checkMovement(float dt) {
         if(preferredDirection == Direction.LEFT) {
-            while (rotationAngle != 180) {
+            while (rotationAngle != Direction.LEFT.getAngle()) {
                 rotationAngle = Utils.makeRotation(rotationAngle, 180, ROTATION_SPEED, dt);
                 rotationAngle = Utils.checkAngleValue(rotationAngle);
                 getTankAnimation().update(dt);
                 return;
             }
-            if (position.x - WIDTH / 2 < 0.0f) {
-                position.x = 0 + WIDTH / 2;
+            if (position.x - (float) WIDTH / 2 < 0.0f) {
+                position.x = (float) WIDTH / 2;
             }
             getTankAnimation().update(dt);
             move(Direction.LEFT, dt);
@@ -113,8 +121,8 @@ public class BotTank extends Tank implements IRotateCannon {
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.x + WIDTH / 2 > Gdx.graphics.getWidth()) {
-                position.x = Gdx.graphics.getWidth() - WIDTH / 2;
+            if(position.x + (float) WIDTH / 2 > Gdx.graphics.getWidth()) {
+                position.x = Gdx.graphics.getWidth() - (float) WIDTH / 2;
             }
             move(Direction.RIGHT, dt);
             getTankAnimation().update(dt);
@@ -126,8 +134,8 @@ public class BotTank extends Tank implements IRotateCannon {
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.y + HEIGHT / 2 > Gdx.graphics.getHeight()) {
-                position.y = Gdx.graphics.getHeight() - HEIGHT / 2;
+            if(position.y + (float) (HEIGHT / 2) > Gdx.graphics.getHeight()) {
+                position.y = Gdx.graphics.getHeight() - (float)(HEIGHT / 2);
             }
             move(Direction.UP, dt);
             getTankAnimation().update(dt);
@@ -139,8 +147,8 @@ public class BotTank extends Tank implements IRotateCannon {
                 getTankAnimation().update(dt);
                 return;
             }
-            if(position.y - HEIGHT / 2 < 0) {
-                position.y = 0 + HEIGHT / 2;
+            if(position.y - (float) (HEIGHT / 2) < 0) {
+                position.y = (float) (HEIGHT / 2);
             }
             move(Direction.DOWN, dt);
             getTankAnimation().update(dt);

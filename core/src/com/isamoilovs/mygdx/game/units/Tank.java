@@ -1,12 +1,11 @@
 package com.isamoilovs.mygdx.game.units;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
+import com.isamoilovs.mygdx.game.GameScreen;
 import com.isamoilovs.mygdx.game.MyGdxGame;
 import com.isamoilovs.mygdx.game.Weapon;
 import com.isamoilovs.mygdx.game.utils.Direction;
@@ -17,20 +16,10 @@ public abstract class Tank {
     TextureRegion texture;
     TextureRegion textureHp;
     Weapon weapon;
-    MyGdxGame game;
+    GameScreen gameScreen;
     TankAnimation tankAnimation;
-
-    public TankOwner getOwnerType() {
-        return ownerType;
-    }
-
     TankOwner ownerType;
     float cannonRotation;
-
-    public Vector2 getPosition() {
-        return position;
-    }
-
     Vector2 position;
     Vector2 tmp;
     float speed;
@@ -49,8 +38,8 @@ public abstract class Tank {
     final int ROTATION_SPEED = 180;
 
 
-    public Tank(MyGdxGame game, TextureAtlas atlas) {
-        this.game = game;
+    public Tank(GameScreen gameScreen, TextureAtlas atlas) {
+        this.gameScreen = gameScreen;
         this.tmp = new Vector2(0.0f, 0.0f);
         textureHp = atlas.findRegion("hp");
     }
@@ -86,14 +75,14 @@ public abstract class Tank {
         if(fireTimer > weapon.getFirePeriod()) {
             fireTimer = 0;
             float angleRad = (float)Math.toRadians(cannonRotation);
-            game.getBulletEmitter().activate(this, position.x + LENGTH_OF_CANNON * (float)Math.cos(angleRad), position.y + LENGTH_OF_CANNON * (float)Math.sin(angleRad), weapon.getBulletSpeed()*(float)Math.cos(angleRad), weapon.getBulletSpeed()*(float)Math.sin(angleRad), weapon.getDamage(), weapon.getBulletLifetime());
+            gameScreen.getBulletEmitter().activate(this, position.x + LENGTH_OF_CANNON * (float)Math.cos(angleRad), position.y + LENGTH_OF_CANNON * (float)Math.sin(angleRad), weapon.getBulletSpeed()*(float)Math.cos(angleRad), weapon.getBulletSpeed()*(float)Math.sin(angleRad), weapon.getDamage(), weapon.getBulletLifetime());
         }
     }
 
     public void move(Direction direction, float dt) {
         tmp.set(position);
         tmp.add(speed * direction.getVx() * dt, speed * direction.getVy() * dt);
-        if(game.getMap().isAreaClear(tmp.x, tmp.y, WIDTH / 2)) {
+        if(gameScreen.getMap().isAreaClear(tmp.x, tmp.y, WIDTH / 2)) {
             rotationAngle = direction.getAngle();
             position.set(tmp);
         }
@@ -103,8 +92,16 @@ public abstract class Tank {
         return this.tankAnimation;
     }
 
+    public TankOwner getOwnerType() {
+        return ownerType;
+    }
+
     public Circle getCircle() {
         return this.circle;
+    }
+
+    public Vector2 getPosition() {
+        return position;
     }
 
     public void takeDamage(int damage) {

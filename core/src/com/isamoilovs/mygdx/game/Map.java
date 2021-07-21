@@ -1,31 +1,89 @@
 package com.isamoilovs.mygdx.game;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-
-import java.util.HashMap;
+import com.badlogic.gdx.math.MathUtils;
 
 public class Map {
+    public enum WallType {
+        STONE_WALL(5, 0, true, false, false),
+        BRICK_WALL(3, 1, true, false, false),
+        OBSIDIAN(1, 2, false, false, false),
+        WATER(1, 3, true, false, true),
+        NONE(0, 0, false, true, true);
+
+        int index;
+        int maxHP;
+        boolean unitPassable;
+        boolean bulletPassable;
+        boolean destructible;
+
+        WallType(int maxHP, int index, boolean destructible, boolean unitPassable, boolean projectilePassable) {
+            this.maxHP = maxHP;
+            this.index = index;
+            this.destructible = destructible;
+            this.unitPassable = unitPassable;
+            this.bulletPassable = projectilePassable;
+        }
+    }
+
+    private class Cell {
+        WallType type;
+        int hp;
+
+        public Cell(WallType type) {
+            this.type = type;
+            this.hp = type.maxHP;
+        }
+
+        public void damage() {
+            if(type.destructible) {
+                hp--;
+                if (hp <= 0) {
+                    type = WallType.NONE;
+                }
+            }
+        }
+
+        public void changeType(WallType type) {
+            this.type = type;
+            this.hp = type.maxHP;
+        }
+    }
+
     private TextureRegion grassTexture;
-    private java.util.Map<String, TextureRegion> textureRegionWallMap;
-    private TextureRegion wallTextureRegion[][];
-    private TextureRegion wallTexture;
+    private TextureRegion wallsTextures[][];
     public static final int SIZE_X = 40;
     public static final int SIZE_Y = 23;
     public static final int CELL_SIZE = 32;
-    private int obstaclesMapArray[][];
+    private Cell cells[][];
 
     public Map(TextureAtlas atlas) {
         this.grassTexture = atlas.findRegion("grass");
         loadTextures(atlas);
-        this.obstaclesMapArray = new int[SIZE_X][SIZE_Y];
-        this.obstaclesMapArray[1][1] = 5;
+        this.cells = new Cell[SIZE_X][SIZE_Y];
         for (int i = 0; i < SIZE_X; i++) {
-            for (int j = 0; j < 3; j++) {
-                this.obstaclesMapArray[i][SIZE_Y - 1 - j] = 5;
+            for (int j = 0; j < SIZE_Y; j++) {
+                cells[i][j] = new Cell(WallType.NONE);
+                int cx = (int) (i / 3);
+                int cy = (int) (j / 3);
+                if(cy % 2 ==0 && cx % 2 ==0) {
+                    if(MathUtils.random() < 0.8f) {
+                        this.cells[i][j].changeType(WallType.WATER);
+                    } else {
+                        this.cells[i][j].changeType(WallType.STONE_WALL);
+                    }
+                }
             }
+        }
+        for (int i = 0; i < SIZE_X; i++) {
+            this.cells[i][0].changeType(WallType.OBSIDIAN);
+            this.cells[i][SIZE_Y - 1].changeType(WallType.OBSIDIAN);
+        }
+        for (int i = 0; i < SIZE_Y; i++) {
+            this.cells[0][i].changeType(WallType.OBSIDIAN);
+            this.cells[SIZE_X - 1][i].changeType(WallType.OBSIDIAN);
         }
     }
 
@@ -37,8 +95,8 @@ public class Map {
         }
         for (int i = 0; i < SIZE_X; i++) {
             for (int j = 0; j < SIZE_Y; j++) {
-                if(obstaclesMapArray[i][j] > 0) {
-                    batch.draw(textureRegionWallMap.get("stone"+ obstaclesMapArray[i][j]), i * CELL_SIZE, j * CELL_SIZE);
+                if(cells[i][j].type != WallType.NONE) {
+                    batch.draw(wallsTextures[cells[i][j].type.index][cells[i][j].hp - 1], i * CELL_SIZE, j * CELL_SIZE);
                 }
             }
         }
@@ -49,8 +107,8 @@ public class Map {
         int cy = (int) bullet.getPosition().y / CELL_SIZE;
 
         if(cx >= 0 && cy >= 0 && cx <= SIZE_X && cy <= SIZE_Y) {
-            if(obstaclesMapArray[cx][cy] > 0) {
-                obstaclesMapArray[cx][cy] -= bullet.getDamage();
+            if(!cells[cx][cy].type.bulletPassable) {
+                cells[cx][cy].damage();
                 bullet.disActivate();
             }
         }
@@ -78,7 +136,7 @@ public class Map {
 
         for (int i = leftX; i <= rightX; i++) {
             for (int j = bottomY; j <= topY; j++) {
-                if(obstaclesMapArray[i][j] > 0) {
+                if(!cells[i][j].type.unitPassable) {
                     return false;
                 }
             }
@@ -87,17 +145,11 @@ public class Map {
     }
 
     public void loadTextures(TextureAtlas atlas) {
-        textureRegionWallMap = new HashMap<String, TextureRegion>();
-        wallTexture = new TextureRegion(atlas.findRegion("stones"));
-        wallTextureRegion = TextureRegion.split(wallTexture.getTexture(), wallTexture.getRegionWidth() / 5, wallTexture.getRegionHeight());
-        textureRegionWallMap.put("stone5", wallTextureRegion[0][0]);
-        textureRegionWallMap.put("stone4", wallTextureRegion[0][1]);
-        textureRegionWallMap.put("stone3", wallTextureRegion[0][2]);
-        textureRegionWallMap.put("stone2", wallTextureRegion[0][3]);
-        textureRegionWallMap.put("stone1", wallTextureRegion[0][4]);
+        wallsTextures = new TextureRegion(atlas.findRegion("walls")).split(CELL_SIZE, CELL_SIZE);
     }
 
     public void update(float dt) {
+
 
     }
 }
