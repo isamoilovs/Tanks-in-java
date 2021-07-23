@@ -17,15 +17,18 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.isamoilovs.mygdx.game.units.BotTank;
 import com.isamoilovs.mygdx.game.units.PlayerTank;
-import com.isamoilovs.mygdx.game.units.PlayerTankWithMovableTurret;
 import com.isamoilovs.mygdx.game.units.Tank;
+import com.isamoilovs.mygdx.game.utils.KeysControl;
 
-public class GameScreen implements Screen {
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameScreen extends AbstractScreen {
     private SpriteBatch batch;
     private TextureAtlas atlas;
     private BitmapFont font24;
     private Stage stage;
-    private PlayerTank playerTank;
+    private java.util.List<PlayerTank> players;
     private BulletEmitter bulletEmitter;
     private Map map;
     private BotEmitter botEmitter;
@@ -35,21 +38,27 @@ public class GameScreen implements Screen {
     private Vector2 mousePosition;
     private TextureRegion cursor;
     float worldTimer;
+    private GameType gameType;
+
+    public void setGameType(GameType gameType) {
+        this.gameType = gameType;
+    }
+
     public GameScreen(SpriteBatch batch) {
         this.batch = batch;
+        this.gameType = GameType.ONE_PLAYER;
     }
 
     public BulletEmitter getBulletEmitter() {
         return bulletEmitter;
     }
 
-
-    public PlayerTank getPlayer() {
-        return playerTank;
-    }
-
     public Map getMap() {
         return map;
+    }
+
+    public List<PlayerTank> getPlayers() {
+        return players;
     }
 
     @Override
@@ -60,7 +69,16 @@ public class GameScreen implements Screen {
         font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
         bulletEmitter = new BulletEmitter(atlas);
         map = new Map(atlas);
-        playerTank = new PlayerTankWithMovableTurret(this, atlas);
+        players = new ArrayList<>();
+
+        System.out.println(gameType);
+
+        players.add(new PlayerTank(1, KeysControl.createStandardControl1(),  this, atlas));
+
+        if(gameType == GameType.TWO_PLAYERS) {
+            players.add(new PlayerTank(2, KeysControl.createStandardControl2(), this, atlas));
+        }
+
         botEmitter = new BotEmitter(this, atlas);
         stage = new Stage();
         mousePosition = new Vector2();
@@ -78,13 +96,14 @@ public class GameScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 paused = !paused;
+                Gdx.input.setCursorCatched(false);
             }
         });
 
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
             }
         });
 
@@ -95,6 +114,7 @@ public class GameScreen implements Screen {
         stage.addActor(group);
         group.setPosition(1280-140-20, 720-64-20);
         Gdx.input.setInputProcessor(stage);
+        Gdx.input.setCursorCatched(true);
     }
 
     @Override
@@ -108,36 +128,23 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(ScreenManager.getInstance().getCamera().combined);
         batch.begin();
         map.render(batch);
-        playerTank.render(batch);
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).render(batch);
+        }
         botEmitter.render(batch);
         bulletEmitter.render(batch);
-        playerTank.renderHUD(batch, font24);
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).renderHUD(batch, font24);
+        }
+
+        batch.end();
+        stage.draw();
+
+        batch.begin();
         batch.draw(cursor, mousePosition.x - 16, mousePosition.y - 16,
                 cursor.getRegionWidth() / 2, cursor.getRegionHeight() / 2, cursor.getRegionWidth(), cursor.getRegionHeight(), 1, 1, -worldTimer*50);
         batch.end();
-        stage.draw();
     }
-
-    @Override
-    public void resize(int width, int height) {
-        ScreenManager.getInstance().resize(width, height);
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void hide() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
 
     public Vector2 getMousePosition() {
         return mousePosition;
@@ -160,7 +167,9 @@ public class GameScreen implements Screen {
                 } while (!map.isAreaClear(coordX, coordY, 32));
                 botEmitter.activate(coordX, coordY);
             }
-            playerTank.update(dt);
+            for (int i = 0; i < players.size(); i++) {
+                players.get(i).update(dt);
+            }
             botEmitter.update(dt);
             bulletEmitter.update(dt);
             checkCollisions();
@@ -173,17 +182,22 @@ public class GameScreen implements Screen {
             if(bullet.isActive()) {
                 for (int j = 0; j < botEmitter.getBots().length; j++) {
                     BotTank bot = botEmitter.getBots()[j];
-                    if(bot.isActive()) {
-                        if(checkBulletOwner(bot, bullet) && bot.getCircle().contains(bullet.getPosition())){
+                    if (bot.isActive()) {
+                        if (checkBulletOwner(bot, bullet) && bot.getCircle().contains(bullet.getPosition())) {
                             bullet.disActivate();
                             bot.takeDamage(bullet.getDamage());
                             break;
                         }
                     }
                 }
-                if(checkBulletOwner(playerTank, bullet) && playerTank.getCircle().contains(bullet.getPosition())) {
-                    bullet.disActivate();
-                    playerTank.takeDamage(bullet.getDamage());
+
+                for (int j = 0; j < players.size(); j++) {
+                    PlayerTank player = players.get(j);
+
+                    if (checkBulletOwner(player, bullet) && player.getCircle().contains(bullet.getPosition())) {
+                        bullet.disActivate();
+                        player.takeDamage(bullet.getDamage());
+                    }
                 }
                 map.checkWallsAndBulletsCollisions(bullet);
             }
@@ -200,6 +214,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        atlas.dispose();
         atlas.dispose();
     }
 }

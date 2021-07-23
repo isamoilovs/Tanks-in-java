@@ -8,14 +8,12 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.isamoilovs.mygdx.game.GameScreen;
-import com.isamoilovs.mygdx.game.MyGdxGame;
 import com.isamoilovs.mygdx.game.Weapon;
-import com.isamoilovs.mygdx.game.interfaces.IRotateCannon;
 import com.isamoilovs.mygdx.game.utils.Direction;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
 import com.isamoilovs.mygdx.game.utils.Utils;
 
-public class BotTank extends Tank implements IRotateCannon {
+public class BotTank extends Tank {
     float aiTimerTo;
     float aiTimer;
     boolean active;
@@ -65,10 +63,23 @@ public class BotTank extends Tank implements IRotateCannon {
             preferredDirection = Direction.values()[MathUtils.random(0, Direction.values().length - 1)];
         }
 
-        float dist = this.position.dst(gameScreen.getPlayer().getPosition());
-
-        if(dist <= pursuitRadius) {
-            rotateCannonToPoint(gameScreen.getPlayer().getPosition().x, gameScreen.getPlayer().getPosition().y, dt);
+        PlayerTank preferredTarget = null;
+        if(gameScreen.getPlayers().size() == 1) {
+            preferredTarget = gameScreen.getPlayers().get(0);
+        } else {
+            float minDst = Float.MAX_VALUE;
+            for (int i = 0; i < gameScreen.getPlayers().size(); i++) {
+                PlayerTank player = gameScreen.getPlayers().get(i);
+                float dst = this.position.dst(player.getPosition());
+                if(dst < minDst) {
+                    minDst = dst;
+                    preferredTarget = player;
+                }
+            }
+        }
+        float dst = this.position.dst(preferredTarget.getPosition());
+        if(dst <= pursuitRadius) {
+            rotateCannonToPoint(preferredTarget.getPosition().x, preferredTarget.getPosition().y, dt);
             fire();
         } else {
             cannonRotation = Utils.makeRotation(cannonRotation, rotationAngle, 180, dt);
@@ -95,11 +106,6 @@ public class BotTank extends Tank implements IRotateCannon {
         active = false;
     }
 
-    public void rotateCannonToPoint(float pointX, float pointY,float dt) {
-        float angleTo = Utils.getAngle(position.x, position.y, pointX, pointY);
-        cannonRotation = Utils.makeRotation(cannonRotation, angleTo, 180, dt);
-        cannonRotation = Utils.checkAngleValue(cannonRotation);
-    }
     public void checkMovement(float dt) {
         if(preferredDirection == Direction.LEFT) {
             while (rotationAngle != Direction.LEFT.getAngle()) {

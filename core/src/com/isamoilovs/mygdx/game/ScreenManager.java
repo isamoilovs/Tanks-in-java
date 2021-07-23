@@ -1,6 +1,7 @@
 package com.isamoilovs.mygdx.game;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -16,7 +17,7 @@ public class ScreenManager {
     private static ScreenManager ourInstance = new ScreenManager();
     private Game game;
     private GameScreen gameScreen;
-    public static ScreenManager getInstance() { return ourInstance; }
+    private MenuScreen menuScreen;
     private Viewport viewport;
     private Camera camera;
     public static final int WORLD_WIDTH = 1280;
@@ -29,11 +30,15 @@ public class ScreenManager {
         this.camera.update();
         this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         this.gameScreen = new GameScreen(batch);
+        this.menuScreen = new MenuScreen(batch);
     }
+
+    public static ScreenManager getInstance() { return ourInstance; }
 
     private ScreenManager() {
 
     }
+
 
     public Camera getCamera() {
         return camera;
@@ -50,10 +55,15 @@ public class ScreenManager {
     }
 
 
-    public void setScreen(ScreenType screenType) {
+    public void setScreen(ScreenType screenType, Object... args) {
+        Gdx.input.setCursorCatched(false);
         Screen currentScreen = game.getScreen();
         switch (screenType) {
+            case MENU:
+                game.setScreen(menuScreen);
+                break;
             case GAME:
+                gameScreen.setGameType((GameType)args[0]);
                 game.setScreen(gameScreen);
                 break;
         }

@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
 import com.isamoilovs.mygdx.game.GameScreen;
-import com.isamoilovs.mygdx.game.MyGdxGame;
 import com.isamoilovs.mygdx.game.Weapon;
 import com.isamoilovs.mygdx.game.utils.Direction;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
+import com.isamoilovs.mygdx.game.utils.Utils;
 
 public abstract class Tank {
     Circle circle;
@@ -112,4 +112,10 @@ public abstract class Tank {
     }
 
     public abstract void destroy();
+
+    public void rotateCannonToPoint(float pointX, float pointY,float dt) {
+        float angleTo = Utils.getAngle(position.x, position.y, pointX, pointY);
+        cannonRotation = Utils.makeRotation(cannonRotation, angleTo, 300, dt);
+        cannonRotation = Utils.checkAngleValue(cannonRotation);
+    }
 }

@@ -1,28 +1,32 @@
 package com.isamoilovs.mygdx.game.units;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.isamoilovs.mygdx.game.GameScreen;
-import com.isamoilovs.mygdx.game.MyGdxGame;
 import com.isamoilovs.mygdx.game.Weapon;
 import com.isamoilovs.mygdx.game.utils.Direction;
+import com.isamoilovs.mygdx.game.utils.KeysControl;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
 import com.isamoilovs.mygdx.game.utils.Utils;
 
 public class PlayerTank extends Tank{
+    KeysControl keysControl;
+    int index;
     int lives;
     int score;
+    StringBuilder tmpString;
 
-    public PlayerTank(GameScreen gameScreen, TextureAtlas atlas) {
+    public PlayerTank(int index, KeysControl keysControl, GameScreen gameScreen, TextureAtlas atlas) {
         super(gameScreen, atlas);
+        this.keysControl = keysControl;
         this.fireTimer = 0;
+        this.index = index;
         this.ownerType = TankOwner.PLAYER;
         this.texture = atlas.findRegion("emptyTankAtlas");
         this.tankAnimation = new TankAnimation(new TextureRegion(texture), 4, 0.6f);
@@ -34,15 +38,39 @@ public class PlayerTank extends Tank{
         this.hp = 5;
         this.lives = 5;
         this.circle = new Circle(position.x, position.y, (float) WIDTH / 2);
+        this.tmpString = new StringBuilder();
+        float cordX, cordY;
+        do {
+            cordX = MathUtils.random(0, Gdx.graphics.getWidth());
+            cordY = MathUtils.random(0, Gdx.graphics.getHeight());
+        } while (!gameScreen.getMap().isAreaClear(cordX, cordY, 32));
+        this.position = new Vector2(cordX, cordY);
     }
 
     public void update(float dt) {
         fireTimer += dt;
-        cannonRotation = rotationAngle;
         circle.setPosition(position);
         checkMovement(dt);
-        if(Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
-            fire();
+
+        if (keysControl.getTargeting() == KeysControl.Targeting.MOUSE) {
+            rotateCannonToPoint(gameScreen.getMousePosition().x, gameScreen.getMousePosition().y, dt);
+            if(Gdx.input.isTouched()) {
+                fire();
+            }
+        } else {
+            if(Gdx.input.isKeyPressed(keysControl.getRotateCannonLeft())) {
+                cannonRotation = Utils.makeRotation(cannonRotation, cannonRotation + 30.0f, 270.0f, dt);
+                cannonRotation = Utils.checkAngleValue(cannonRotation);
+            }
+
+            if(Gdx.input.isKeyPressed(keysControl.getRotateCannonRight())) {
+                cannonRotation = Utils.makeRotation(cannonRotation, cannonRotation - 30.0f, 270.0f, dt);
+                cannonRotation = Utils.checkAngleValue(cannonRotation);
+            }
+
+            if(Gdx.input.isKeyPressed(keysControl.getFire())) {
+                fire();
+            }
         }
     }
     public void destroy(){
@@ -55,11 +83,15 @@ public class PlayerTank extends Tank{
     }
 
     public void renderHUD(SpriteBatch batch, BitmapFont font24) {
-        font24.draw(batch, "Score: " + score + "\nLives: " + lives, 50, 680);
+        tmpString.setLength(0);
+        tmpString.append("Player: ").append(index);
+        tmpString.append("\nScore: ").append(score);
+        tmpString.append("\nLives: ").append(lives);
+        font24.draw(batch, tmpString, 50 + (index - 1) * 200, 680);
     }
 
     public void checkMovement(float dt) {
-        if(Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if(Gdx.input.isKeyPressed(keysControl.getLeft())) {
             while (rotationAngle != Direction.LEFT.getAngle()) {
                 rotationAngle = Utils.makeRotation(rotationAngle, 180, ROTATION_SPEED, dt);
                 rotationAngle = Utils.checkAngleValue(rotationAngle);
@@ -72,7 +104,7 @@ public class PlayerTank extends Tank{
             getTankAnimation().update(dt);
             move(Direction.LEFT, dt);
 
-        } else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
+        } else if(Gdx.input.isKeyPressed(keysControl.getRight())) {
             while (rotationAngle != Direction.RIGHT.getAngle()) {
                 rotationAngle = Utils.makeRotation(rotationAngle, 0, ROTATION_SPEED, dt);
                 rotationAngle = Utils.checkAngleValue(rotationAngle);
@@ -85,7 +117,7 @@ public class PlayerTank extends Tank{
             move(Direction.RIGHT, dt);
             getTankAnimation().update(dt);
 
-        } else if(Gdx.input.isKeyPressed(Input.Keys.W)) {
+        } else if(Gdx.input.isKeyPressed(keysControl.getUp())) {
             while (rotationAngle != Direction.UP.getAngle()) {
                 rotationAngle = Utils.makeRotation(rotationAngle, 90, ROTATION_SPEED, dt);
                 rotationAngle = Utils.checkAngleValue(rotationAngle);
@@ -98,7 +130,7 @@ public class PlayerTank extends Tank{
             move(Direction.UP, dt);
             getTankAnimation().update(dt);
 
-        } else if(Gdx.input.isKeyPressed(Input.Keys.S)) {
+        } else if(Gdx.input.isKeyPressed(keysControl.getDown())) {
             while (rotationAngle != Direction.DOWN.getAngle()) {
                 rotationAngle = Utils.makeRotation(rotationAngle, -90, ROTATION_SPEED, dt);
                 rotationAngle = Utils.checkAngleValue(rotationAngle);
