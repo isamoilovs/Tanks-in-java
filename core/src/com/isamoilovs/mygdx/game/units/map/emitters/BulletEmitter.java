@@ -60,7 +60,7 @@ public class BulletEmitter {
                     if (bot.isActive()) {
                         if (checkBulletOwner(bot, bullet, friendlyFire) && bot.getCircle().contains(bullet.getPosition())) {
                             bullet.disActivate();
-                            bot.takeDamage(bullet.getDamage());
+                            bot.takeDamage(bullet.getDamage(), bullet.getOwner());
                             break;
                         }
                     }

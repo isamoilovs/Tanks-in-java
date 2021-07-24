@@ -112,6 +112,7 @@ public abstract class Tank {
     }
 
     public abstract void destroy();
+    public void addScore(int amount){}
 
     public void rotateCannonToPoint(float pointX, float pointY,float dt) {
         float angleTo = Utils.getAngle(position.x, position.y, pointX, pointY);

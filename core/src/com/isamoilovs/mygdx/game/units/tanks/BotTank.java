@@ -20,6 +20,7 @@ public class BotTank extends Tank {
     float pursuitRadius;
     Direction preferredDirection;
     Vector3 lastPosition;
+    int scoreAmount;
 
 
     public boolean isActive() {
@@ -52,6 +53,7 @@ public class BotTank extends Tank {
         this.ownerType = TankOwner.AI;
         this.preferredDirection = Direction.UP;
         this.circle = new Circle(position.x, position.y, WIDTH / 2);
+        this.scoreAmount = 10;
     }
 
     @Override
@@ -100,6 +102,14 @@ public class BotTank extends Tank {
         fireTimer += dt;
         checkMovement(dt);
         circle.setPosition(position);
+    }
+
+    public void takeDamage(int damage, Tank playerTank) {
+        hp -= damage;
+        if (hp <= 0) {
+            destroy();
+            playerTank.addScore(scoreAmount);
+        }
     }
 
     public void destroy(){
