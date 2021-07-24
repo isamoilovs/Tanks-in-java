@@ -1,9 +1,11 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.units.map;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.isamoilovs.mygdx.game.units.map.emitters.BulletEmitter;
+import com.isamoilovs.mygdx.game.units.weapon.Bullet;
 
 public class Map {
     public enum WallType {
@@ -102,14 +104,20 @@ public class Map {
         }
     }
 
-    public void checkWallsAndBulletsCollisions(Bullet bullet) {
-        int cx = (int) bullet.getPosition().x / CELL_SIZE;
-        int cy = (int) bullet.getPosition().y / CELL_SIZE;
+    public void checkWallsAndBulletsCollisions(BulletEmitter bulletEmitter) {
 
-        if(cx >= 0 && cy >= 0 && cx <= SIZE_X && cy <= SIZE_Y) {
-            if(!cells[cx][cy].type.bulletPassable) {
-                cells[cx][cy].damage();
-                bullet.disActivate();
+        for (int i = 0; i < bulletEmitter.getBullets().length; i++) {
+            Bullet bullet = bulletEmitter.getBullets()[i];
+            if(bullet.isActive()) {
+                int cx = (int) bullet.getPosition().x / CELL_SIZE;
+                int cy = (int) bullet.getPosition().y / CELL_SIZE;
+
+                if(cx >= 0 && cy >= 0 && cx <= SIZE_X && cy <= SIZE_Y) {
+                    if(!cells[cx][cy].type.bulletPassable) {
+                        cells[cx][cy].damage();
+                        bullet.disActivate();
+                    }
+                }
             }
         }
     }

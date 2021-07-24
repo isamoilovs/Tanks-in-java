@@ -1,6 +1,7 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.screens;
 
 import com.badlogic.gdx.Screen;
+import com.isamoilovs.mygdx.game.screens.ScreenManager;
 
 public abstract class AbstractScreen implements Screen {
     @Override

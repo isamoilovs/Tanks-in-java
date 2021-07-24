@@ -1,4 +1,4 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.units.weapon;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;

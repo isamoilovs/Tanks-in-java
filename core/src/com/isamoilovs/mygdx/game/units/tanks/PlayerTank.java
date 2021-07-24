@@ -1,4 +1,4 @@
-package com.isamoilovs.mygdx.game.units;
+package com.isamoilovs.mygdx.game.units.tanks;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -8,8 +8,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.isamoilovs.mygdx.game.GameScreen;
-import com.isamoilovs.mygdx.game.Weapon;
+import com.isamoilovs.mygdx.game.screens.GameScreen;
+import com.isamoilovs.mygdx.game.units.map.emitters.PerksEmitter;
+import com.isamoilovs.mygdx.game.units.weapon.Weapon;
 import com.isamoilovs.mygdx.game.utils.Direction;
 import com.isamoilovs.mygdx.game.utils.KeysControl;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
@@ -20,16 +21,20 @@ public class PlayerTank extends Tank{
     int index;
     int lives;
     int score;
+    float shieldTime;
+    float currentShieldTimer;
     StringBuilder tmpString;
+    private boolean ableToBeDamaged;
 
     public PlayerTank(int index, KeysControl keysControl, GameScreen gameScreen, TextureAtlas atlas) {
         super(gameScreen, atlas);
+        this.currentShieldTimer = 0.0f;
         this.keysControl = keysControl;
         this.fireTimer = 0;
         this.index = index;
         this.ownerType = TankOwner.PLAYER;
         this.texture = atlas.findRegion("emptyTankAtlas");
-        this.tankAnimation = new TankAnimation(new TextureRegion(texture), 4, 0.6f);
+        this.animation = new Animation(new TextureRegion(texture), 4, 0.6f);
         this.position = new Vector2(500.0f, 450.0f);
         this.speed = 100.0f;
         this.weapon = new Weapon(atlas);
@@ -39,6 +44,7 @@ public class PlayerTank extends Tank{
         this.lives = 5;
         this.circle = new Circle(position.x, position.y, (float) WIDTH / 2);
         this.tmpString = new StringBuilder();
+        this.ableToBeDamaged = true;
         float cordX, cordY;
         do {
             cordX = MathUtils.random(0, Gdx.graphics.getWidth());
@@ -51,6 +57,14 @@ public class PlayerTank extends Tank{
         fireTimer += dt;
         circle.setPosition(position);
         checkMovement(dt);
+
+        if(!ableToBeDamaged) {
+            currentShieldTimer +=  dt;
+        }
+        if(currentShieldTimer >= PerksEmitter.PerkType.SHIELD.getActionTime()) {
+            removeShield();
+            currentShieldTimer = 0;
+        }
 
         if (keysControl.getTargeting() == KeysControl.Targeting.MOUSE) {
             rotateCannonToPoint(gameScreen.getMousePosition().x, gameScreen.getMousePosition().y, dt);
@@ -89,6 +103,23 @@ public class PlayerTank extends Tank{
         tmpString.append("\nLives: ").append(lives);
         font24.draw(batch, tmpString, 50 + (index - 1) * 200, 680);
     }
+
+    public boolean isAbleToBeDamaged() {
+        return ableToBeDamaged;
+    }
+
+    public void getShield() {
+        this.ableToBeDamaged = false;
+    }
+    public void repair() {
+        if(hp < hpMax) {
+            hp = hpMax;
+        } else {
+            lives++;
+        }
+    }
+
+    public void removeShield() {this.ableToBeDamaged = true;}
 
     public void checkMovement(float dt) {
         if(Gdx.input.isKeyPressed(keysControl.getLeft())) {

@@ -1,4 +1,4 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -8,10 +8,11 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.isamoilovs.mygdx.game.utils.GameType;
 
 public class ScreenManager {
     public enum ScreenType {
-        MENU, GAME;
+        MENU, GAME, SCORES, SETTINGS, MAP_REDACTOR;
     }
 
     private static ScreenManager ourInstance = new ScreenManager();
@@ -66,6 +67,15 @@ public class ScreenManager {
                 gameScreen.setGameType((GameType)args[0]);
                 game.setScreen(gameScreen);
                 break;
+
+//            case SCORES:
+//                game.setScreen(scoresScreen);
+//                break;
+//            case SETTINGS:
+//                game.setScreen(settingsScreen);
+//            case MAP_REDACTOR:
+//                game.setScreen(mapRedactorScreen);
+
         }
         if(currentScreen != null) {
             currentScreen.dispose();

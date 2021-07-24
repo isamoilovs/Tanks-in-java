@@ -1,9 +1,7 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.units.weapon;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.isamoilovs.mygdx.game.units.Tank;
+import com.isamoilovs.mygdx.game.units.tanks.Tank;
 
 public class Bullet {
     private Vector2 position;
@@ -26,7 +24,7 @@ public class Bullet {
         return position;
     }
 
-    Bullet() {
+    public Bullet() {
         this.position = new Vector2();
         this.velocity = new Vector2();
         this.position.x = 0.0f;

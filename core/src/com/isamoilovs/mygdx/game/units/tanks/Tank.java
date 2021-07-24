@@ -1,12 +1,12 @@
-package com.isamoilovs.mygdx.game.units;
+package com.isamoilovs.mygdx.game.units.tanks;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.Vector2;
-import com.isamoilovs.mygdx.game.GameScreen;
-import com.isamoilovs.mygdx.game.Weapon;
+import com.isamoilovs.mygdx.game.screens.GameScreen;
+import com.isamoilovs.mygdx.game.units.weapon.Weapon;
 import com.isamoilovs.mygdx.game.utils.Direction;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
 import com.isamoilovs.mygdx.game.utils.Utils;
@@ -17,7 +17,7 @@ public abstract class Tank {
     TextureRegion textureHp;
     Weapon weapon;
     GameScreen gameScreen;
-    TankAnimation tankAnimation;
+    Animation animation;
     TankOwner ownerType;
     float cannonRotation;
     Vector2 position;
@@ -45,7 +45,7 @@ public abstract class Tank {
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(tankAnimation.getFrame(),
+        batch.draw(animation.getFrame(),
                 position.x - ORIGIN_X,
                 position.y - ORIGIN_Y,
                 ORIGIN_X,
@@ -88,8 +88,8 @@ public abstract class Tank {
         }
     }
 
-    public TankAnimation getTankAnimation() {
-        return this.tankAnimation;
+    public Animation getTankAnimation() {
+        return this.animation;
     }
 
     public TankOwner getOwnerType() {

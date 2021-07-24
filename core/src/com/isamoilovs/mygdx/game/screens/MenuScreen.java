@@ -1,12 +1,10 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -14,15 +12,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.isamoilovs.mygdx.game.units.BotTank;
-import com.isamoilovs.mygdx.game.units.PlayerTank;
-import com.isamoilovs.mygdx.game.units.Tank;
-import com.isamoilovs.mygdx.game.utils.KeysControl;
+import com.isamoilovs.mygdx.game.units.map.emitters.BulletEmitter;
+import com.isamoilovs.mygdx.game.utils.GameType;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class MenuScreen extends AbstractScreen{
+public class MenuScreen extends AbstractScreen {
     private SpriteBatch batch;
     private TextureAtlas atlas;
     private BitmapFont font24;
@@ -54,16 +47,12 @@ public class MenuScreen extends AbstractScreen{
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME, GameType.ONE_PLAYER);
-                System.out.println("ONE PLAYER");
             }
         });
-
         start2Button.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME, GameType.TWO_PLAYERS);
-                System.out.println("TWO PLAYERS");
-
             }
         });
 
@@ -74,14 +63,14 @@ public class MenuScreen extends AbstractScreen{
             }
         });
 
-        start1Button.setPosition(0, 80);
-        start2Button.setPosition(0, 40);
-        exitButton.setPosition(0, 120);
+        start1Button.setPosition(0, 230);
+        start2Button.setPosition(0, 190);
+        exitButton.setPosition(0, 150);
         group.addActor(start1Button);
         group.addActor(start2Button);
         group.addActor(exitButton);
         stage.addActor(group);
-        group.setPosition(580, 40);
+        group.setPosition(580, 150);
         Gdx.input.setInputProcessor(stage);
     }
 

@@ -1,9 +1,12 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.units.map.emitters;
 
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.isamoilovs.mygdx.game.units.BotTank;
+import com.badlogic.gdx.math.MathUtils;
+import com.isamoilovs.mygdx.game.screens.GameScreen;
+import com.isamoilovs.mygdx.game.units.map.Map;
+import com.isamoilovs.mygdx.game.units.tanks.BotTank;
 
 public class BotEmitter {
     private BotTank[] bots;
@@ -20,10 +23,17 @@ public class BotEmitter {
         }
     }
 
-    public void activate(float x, float y) {
+    public void activate(Map map) {
+
+        float cordX, cordY;
+        do {
+            cordX = MathUtils.random(0, Gdx.graphics.getWidth());
+            cordY = MathUtils.random(0, Gdx.graphics.getHeight());
+        } while (!map.isAreaClear(cordX, cordY, 32));
+
         for(int i = 0; i < bots.length; i++) {
             if(!bots[i].isActive()) {
-                bots[i].activate(x, y);
+                bots[i].activate(cordX, cordY);
                 break;
             }
         }

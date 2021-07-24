@@ -1,4 +1,4 @@
-package com.isamoilovs.mygdx.game.units;
+package com.isamoilovs.mygdx.game.units.tanks;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -7,8 +7,8 @@ import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.isamoilovs.mygdx.game.GameScreen;
-import com.isamoilovs.mygdx.game.Weapon;
+import com.isamoilovs.mygdx.game.screens.GameScreen;
+import com.isamoilovs.mygdx.game.units.weapon.Weapon;
 import com.isamoilovs.mygdx.game.utils.Direction;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
 import com.isamoilovs.mygdx.game.utils.Utils;
@@ -38,7 +38,7 @@ public class BotTank extends Tank {
         super(gameScreen, atlas);
         this.active = false;
         this.texture = atlas.findRegion("emptyBotTankAtlas");
-        this.tankAnimation = new TankAnimation(new TextureRegion(texture), 4, 0.6f);
+        this.animation = new Animation(new TextureRegion(texture), 4, 0.6f);
         this.position = new Vector2(500.0f, 500.0f);
         this.speed = 100.0f;
         this.weapon = new Weapon(atlas);

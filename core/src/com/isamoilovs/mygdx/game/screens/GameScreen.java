@@ -1,7 +1,6 @@
-package com.isamoilovs.mygdx.game;
+package com.isamoilovs.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -15,9 +14,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.isamoilovs.mygdx.game.units.BotTank;
-import com.isamoilovs.mygdx.game.units.PlayerTank;
-import com.isamoilovs.mygdx.game.units.Tank;
+import com.isamoilovs.mygdx.game.units.map.Map;
+import com.isamoilovs.mygdx.game.units.map.emitters.BotEmitter;
+import com.isamoilovs.mygdx.game.units.map.emitters.BulletEmitter;
+import com.isamoilovs.mygdx.game.units.map.emitters.PerksEmitter;
+import com.isamoilovs.mygdx.game.units.tanks.BotTank;
+import com.isamoilovs.mygdx.game.units.tanks.PlayerTank;
+import com.isamoilovs.mygdx.game.units.tanks.Tank;
+import com.isamoilovs.mygdx.game.units.weapon.Bullet;
+import com.isamoilovs.mygdx.game.utils.GameType;
 import com.isamoilovs.mygdx.game.utils.KeysControl;
 
 import java.util.ArrayList;
@@ -39,6 +44,7 @@ public class GameScreen extends AbstractScreen {
     private TextureRegion cursor;
     float worldTimer;
     private GameType gameType;
+    private PerksEmitter perksEmitter;
 
     public void setGameType(GameType gameType) {
         this.gameType = gameType;
@@ -68,21 +74,18 @@ public class GameScreen extends AbstractScreen {
         gameTimer = 0.0f;
         font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
         bulletEmitter = new BulletEmitter(atlas);
+        mousePosition = new Vector2();
+        this.worldTimer = 0;
         map = new Map(atlas);
         players = new ArrayList<>();
-
-        System.out.println(gameType);
-
         players.add(new PlayerTank(1, KeysControl.createStandardControl1(),  this, atlas));
-
         if(gameType == GameType.TWO_PLAYERS) {
             players.add(new PlayerTank(2, KeysControl.createStandardControl2(), this, atlas));
         }
 
         botEmitter = new BotEmitter(this, atlas);
+        perksEmitter = new PerksEmitter(this, atlas);
         stage = new Stage();
-        mousePosition = new Vector2();
-        this.worldTimer = 0;
         Skin skin = new Skin();
         skin.add("simpleButton", new TextureRegion(atlas.findRegion("simpleButton")));
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -121,10 +124,6 @@ public class GameScreen extends AbstractScreen {
     public void render(float delta) {
         update(delta);
         ScreenUtils.clear(0, 0.0f, 0, 1);
-
-//        ScreenManager.getInstance().getCamera().position.set(playerTank.getPosition().x, playerTank.getPosition().y, 0);
-//        ScreenManager.getInstance().getCamera().update();
-
         batch.setProjectionMatrix(ScreenManager.getInstance().getCamera().combined);
         batch.begin();
         map.render(batch);
@@ -136,8 +135,9 @@ public class GameScreen extends AbstractScreen {
         for (int i = 0; i < players.size(); i++) {
             players.get(i).renderHUD(batch, font24);
         }
-
+        perksEmitter.render(batch);
         batch.end();
+
         stage.draw();
 
         batch.begin();
@@ -157,64 +157,32 @@ public class GameScreen extends AbstractScreen {
 
         if(!paused) {
             gameTimer += dt;
-            if (gameTimer >= 10.0f) {
+            if (gameTimer >= 3.0f) {
                 gameTimer = 0;
-
-                float coordX, coordY;
-                do {
-                    coordX = MathUtils.random(0, Gdx.graphics.getWidth());
-                    coordY = MathUtils.random(0, Gdx.graphics.getHeight());
-                } while (!map.isAreaClear(coordX, coordY, 32));
-                botEmitter.activate(coordX, coordY);
+                botEmitter.activate(map);
+                perksEmitter.activate(map);
             }
+
             for (int i = 0; i < players.size(); i++) {
                 players.get(i).update(dt);
             }
+
+            perksEmitter.update(dt);
             botEmitter.update(dt);
             bulletEmitter.update(dt);
             checkCollisions();
         }
+
         stage.act(dt);
     }
     public void checkCollisions() {
-        for (int i = 0; i < bulletEmitter.getBullets().length; i++) {
-            Bullet bullet = bulletEmitter.getBullets()[i];
-            if(bullet.isActive()) {
-                for (int j = 0; j < botEmitter.getBots().length; j++) {
-                    BotTank bot = botEmitter.getBots()[j];
-                    if (bot.isActive()) {
-                        if (checkBulletOwner(bot, bullet) && bot.getCircle().contains(bullet.getPosition())) {
-                            bullet.disActivate();
-                            bot.takeDamage(bullet.getDamage());
-                            break;
-                        }
-                    }
-                }
-
-                for (int j = 0; j < players.size(); j++) {
-                    PlayerTank player = players.get(j);
-
-                    if (checkBulletOwner(player, bullet) && player.getCircle().contains(bullet.getPosition())) {
-                        bullet.disActivate();
-                        player.takeDamage(bullet.getDamage());
-                    }
-                }
-                map.checkWallsAndBulletsCollisions(bullet);
-            }
-        }
-    }
-
-    public boolean checkBulletOwner(Tank tank, Bullet bullet) {
-        if(!FRIENDLY_FIRE) {
-            return tank.getOwnerType() != bullet.getOwner().getOwnerType();
-        } else {
-            return tank != bullet.getOwner();
-        }
+        perksEmitter.checkPerkAndPlayerCollision(getPlayers());
+        bulletEmitter.checkTankAndBulletCollisions(botEmitter.getBots(), players, FRIENDLY_FIRE);
+        map.checkWallsAndBulletsCollisions(bulletEmitter);
     }
 
     @Override
     public void dispose() {
-        atlas.dispose();
         atlas.dispose();
     }
 }
