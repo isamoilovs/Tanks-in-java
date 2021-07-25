@@ -104,8 +104,8 @@ public class PerksEmitter {
     public void activate(Map map) {
         float cordX, cordY;
         do {
-            cordX = MathUtils.random(0, Gdx.graphics.getWidth());
-            cordY = MathUtils.random(0, Gdx.graphics.getHeight());
+            cordX = MathUtils.random(240.0f, Gdx.graphics.getWidth() - 240.f);
+            cordY = MathUtils.random(60.f, Gdx.graphics.getHeight() - 60.0f);
         } while (!map.isAreaClear(cordX, cordY, 32));
 
         for (int i = 0; i < perks.length; i++) {
@@ -140,14 +140,13 @@ public class PerksEmitter {
     public void render(SpriteBatch batch) {
         for (int i = 0; i < perks.length; i++) {
             if(perks[i].isActive()){
-                batch.draw(perksTextures[perks[i].perkType.index][perks[i].frame],perks[i].position.x, perks[i].position.y);
+                batch.draw(perksTextures[perks[i].perkType.index][perks[i].frame],perks[i].position.x, perks[i].position.y, 32, 32);
             }
         }
     }
 
 
     public void checkPerkAndPlayerCollision(List<PlayerTank> playerTanks) {
-
         for (int i = 0; i < playerTanks.size(); i++) {
             Circle playerCircle = new Circle(playerTanks.get(i).getCircle());
             for (int j = 0; j < perks.length; j++) {
@@ -156,7 +155,7 @@ public class PerksEmitter {
                         && (playerTanks.get(i).isAbleToBeDamaged())
                         && perks[j].getPerkType() == PerksEmitter.PerkType.SHIELD) {
                     playerTanks.get(i).getShield();
-                   perks[j].disActivate();
+                    perks[j].disActivate();
                 }
                 if(perkCircle.overlaps(playerCircle)
                         && perks[j].getPerkType() == PerksEmitter.PerkType.MED_KIT) {

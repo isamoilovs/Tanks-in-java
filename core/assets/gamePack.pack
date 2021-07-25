@@ -5,105 +5,112 @@ filter: Nearest,Nearest
 repeat: none
 walls
   rotate: false
-  xy: 2, 2
+  xy: 0, 0
   size: 160, 128
   orig: 160, 128
   offset: 0, 0
   index: -1
 perks
   rotate: false
-  xy: 164, 2
+  xy: 160, 0
   size: 256, 64
   orig: 256, 64
   offset: 0, 0
   index: -1
 stones
   rotate: false
-  xy: 2, 132
+  xy: 160, 64
   size: 160, 32
   orig: 160, 32
   offset: 0, 0
   index: -1
 simpleButton
   rotate: false
-  xy: 2, 166
+  xy: 160, 96
   size: 140, 32
   orig: 140, 32
   offset: 0, 0
   index: -1
 tank1anim
   rotate: false
-  xy: 2, 200
+  xy: 416, 0
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 emptyTankAtlas
   rotate: false
-  xy: 164, 68
+  xy: 416, 32
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 emptyBotTankAtlas
   rotate: false
-  xy: 164, 102
+  xy: 416, 64
   size: 128, 32
   orig: 128, 32
   offset: 0, 0
   index: -1
 brick
   rotate: false
-  xy: 164, 136
+  xy: 320, 64
   size: 96, 32
   orig: 96, 32
   offset: 0, 0
   index: -1
 water
   rotate: false
-  xy: 422, 2
+  xy: 320, 96
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 obsidian
   rotate: false
-  xy: 456, 2
+  xy: 352, 96
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 grass
   rotate: false
-  xy: 164, 170
+  xy: 384, 96
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 cursor
   rotate: false
-  xy: 164, 204
+  xy: 416, 96
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 cannon
   rotate: false
-  xy: 198, 170
+  xy: 448, 96
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
+playerTankLvl1
+  rotate: false
+  xy: 544, 0
+  size: 128, 16
+  orig: 128, 16
+  offset: 0, 0
+  index: -1
 bullet
   rotate: false
-  xy: 144, 166
+  xy: 300, 96
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 hp
   rotate: false
-  xy: 2, 234
+  xy: 480, 96
   size: 32, 8
   orig: 32, 8
   offset: 0, 0

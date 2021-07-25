@@ -12,11 +12,12 @@ import com.isamoilovs.mygdx.game.utils.GameType;
 
 public class ScreenManager {
     public enum ScreenType {
-        MENU, GAME, SCORES, SETTINGS, MAP_REDACTOR;
+        MENU, GAME, SCORES, SETTINGS, MAP_REDACTOR, GAME_OVER;
     }
 
     private static ScreenManager ourInstance = new ScreenManager();
     private Game game;
+    private GameOverScreen gameOverScreen;
     private GameScreen gameScreen;
     private MenuScreen menuScreen;
     private Viewport viewport;
@@ -32,6 +33,7 @@ public class ScreenManager {
         this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         this.gameScreen = new GameScreen(batch);
         this.menuScreen = new MenuScreen(batch);
+        this.gameOverScreen = new GameOverScreen(batch);
     }
 
     public static ScreenManager getInstance() { return ourInstance; }
@@ -66,6 +68,9 @@ public class ScreenManager {
             case GAME:
                 gameScreen.setGameType((GameType)args[0]);
                 game.setScreen(gameScreen);
+                break;
+            case GAME_OVER:
+                game.setScreen(gameOverScreen);
                 break;
 
 //            case SCORES:

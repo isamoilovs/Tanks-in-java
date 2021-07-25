@@ -1,5 +1,6 @@
 package com.isamoilovs.mygdx.game.units.map;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -56,49 +57,57 @@ public class Map {
 
     private TextureRegion grassTexture;
     private TextureRegion wallsTextures[][];
-    public static final int SIZE_X = 40;
-    public static final int SIZE_Y = 23;
-    public static final int CELL_SIZE = 32;
+    public static final int WIDTH = 800;
+    public static final int HEIGHT = 576;
+    public static final int DEFAULT_CELL_SIZE = 32;
+    public static final int SIZE_CX = WIDTH / DEFAULT_CELL_SIZE;
+    public static final int SIZE_CY = HEIGHT / DEFAULT_CELL_SIZE;
+    public static final int DEFAULT_DX = (Gdx.graphics.getWidth() - WIDTH) / 2;
+    public static final int DEFAULT_DY = (Gdx.graphics.getHeight() - HEIGHT) / 2;
+    public static final int DEFAULT_DCX = DEFAULT_DX / DEFAULT_CELL_SIZE;
+    public static final int DEFAULT_DCY = DEFAULT_DY / DEFAULT_CELL_SIZE;
+
+
     private Cell cells[][];
 
     public Map(TextureAtlas atlas) {
         this.grassTexture = atlas.findRegion("grass");
         loadTextures(atlas);
-        this.cells = new Cell[SIZE_X][SIZE_Y];
-        for (int i = 0; i < SIZE_X; i++) {
-            for (int j = 0; j < SIZE_Y; j++) {
+        this.cells = new Cell[SIZE_CX][SIZE_CY];
+        for (int i = 0; i < SIZE_CX; i++) {
+            for (int j = 0; j < SIZE_CY; j++) {
                 cells[i][j] = new Cell(WallType.NONE);
-                int cx = (int) (i / 3);
-                int cy = (int) (j / 3);
-                if(cy % 2 ==0 && cx % 2 ==0) {
-                    if(MathUtils.random() < 0.8f) {
-                        this.cells[i][j].changeType(WallType.WATER);
-                    } else {
-                        this.cells[i][j].changeType(WallType.STONE_WALL);
-                    }
-                }
+                int cx = (int) (i / 4);
+                int cy = (int) (j / 4);
+//                if(cy % 2 ==0 && cx % 2 ==0) {
+//                    if(MathUtils.random() < 0.8f) {
+//                        this.cells[i][j].changeType(WallType.WATER);
+//                    } else {
+//                        this.cells[i][j].changeType(WallType.STONE_WALL);
+//                    }
+//                }
             }
         }
-        for (int i = 0; i < SIZE_X; i++) {
-            this.cells[i][0].changeType(WallType.OBSIDIAN);
-            this.cells[i][SIZE_Y - 1].changeType(WallType.OBSIDIAN);
-        }
-        for (int i = 0; i < SIZE_Y; i++) {
-            this.cells[0][i].changeType(WallType.OBSIDIAN);
-            this.cells[SIZE_X - 1][i].changeType(WallType.OBSIDIAN);
-        }
+//        for (int i = 0; i < SIZE_CX; i++) {
+//            this.cells[i][0].changeType(WallType.OBSIDIAN);
+//            this.cells[i][SIZE_CY - 1].changeType(WallType.OBSIDIAN);
+//        }
+//        for (int i = 0; i < SIZE_CY; i++) {
+//            this.cells[0][i].changeType(WallType.OBSIDIAN);
+//            this.cells[SIZE_CX - 1][i].changeType(WallType.OBSIDIAN);
+//        }
     }
 
     public void render(SpriteBatch batch) {
-        for (int i = 0; i < SIZE_X; i++) {
-            for (int j = 0; j < SIZE_Y; j++) {
-                batch.draw(grassTexture, i*CELL_SIZE, j*CELL_SIZE);
+        for (int i = 0; i < SIZE_CX; i++) {
+            for (int j = 0; j < SIZE_CY; j++) {
+                batch.draw(grassTexture, i*DEFAULT_CELL_SIZE + DEFAULT_DX, j*DEFAULT_CELL_SIZE + DEFAULT_DY, DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
             }
         }
-        for (int i = 0; i < SIZE_X; i++) {
-            for (int j = 0; j < SIZE_Y; j++) {
+        for (int i = 0; i < SIZE_CX; i++) {
+            for (int j = 0; j < SIZE_CY; j++) {
                 if(cells[i][j].type != WallType.NONE) {
-                    batch.draw(wallsTextures[cells[i][j].type.index][cells[i][j].hp - 1], i * CELL_SIZE, j * CELL_SIZE);
+                    batch.draw(wallsTextures[cells[i][j].type.index][cells[i][j].hp - 1], i * DEFAULT_CELL_SIZE + DEFAULT_DX, j * DEFAULT_CELL_SIZE + DEFAULT_DY,  DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
                 }
             }
         }
@@ -109,10 +118,10 @@ public class Map {
         for (int i = 0; i < bulletEmitter.getBullets().length; i++) {
             Bullet bullet = bulletEmitter.getBullets()[i];
             if(bullet.isActive()) {
-                int cx = (int) bullet.getPosition().x / CELL_SIZE;
-                int cy = (int) bullet.getPosition().y / CELL_SIZE;
+                int cx = (int) ((bullet.getPosition().x - DEFAULT_DX) / DEFAULT_CELL_SIZE);
+                int cy = (int) ((bullet.getPosition().y - DEFAULT_DY) / DEFAULT_CELL_SIZE);
 
-                if(cx >= 0 && cy >= 0 && cx <= SIZE_X && cy <= SIZE_Y) {
+                if(cx >= 0 && cy >= 0 && cx <= SIZE_CX && cy <= SIZE_CY) {
                     if(!cells[cx][cy].type.bulletPassable) {
                         cells[cx][cy].damage();
                         bullet.disActivate();
@@ -123,23 +132,23 @@ public class Map {
     }
 
     public boolean isAreaClear(float x, float y, float halfSize) {
-        int leftX = (int) ((x - halfSize) / CELL_SIZE);
-        int rightX = (int) ((x + halfSize) / CELL_SIZE);
+        int leftX = (int) ((x - halfSize - DEFAULT_DX) / DEFAULT_CELL_SIZE);
+        int rightX = (int) ((x + halfSize - DEFAULT_DX) / DEFAULT_CELL_SIZE);
 
-        int bottomY = (int) ((y - halfSize) / CELL_SIZE);
-        int topY = (int) ((y + halfSize) / CELL_SIZE);
+        int bottomY = (int) ((y - halfSize - DEFAULT_DY) / DEFAULT_CELL_SIZE);
+        int topY = (int) ((y + halfSize - DEFAULT_DY) / DEFAULT_CELL_SIZE);
 
         if (leftX < 0) {
             leftX = 0;
         }
-        if(rightX >= SIZE_X) {
-            rightX = SIZE_X - 1;
+        if(rightX >= SIZE_CX) {
+            rightX = SIZE_CX - 1;
         }
         if (bottomY < 0) {
             bottomY = 0;
         }
-        if(topY >= SIZE_Y) {
-            topY = SIZE_Y - 1;
+        if(topY >= SIZE_CY) {
+            topY = SIZE_CY - 1;
         }
 
         for (int i = leftX; i <= rightX; i++) {
@@ -153,7 +162,7 @@ public class Map {
     }
 
     public void loadTextures(TextureAtlas atlas) {
-        wallsTextures = new TextureRegion(atlas.findRegion("walls")).split(CELL_SIZE, CELL_SIZE);
+        wallsTextures = new TextureRegion(atlas.findRegion("walls")).split(DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
     }
 
     public void update(float dt) {

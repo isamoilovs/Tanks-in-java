@@ -27,8 +27,8 @@ public class BotEmitter {
 
         float cordX, cordY;
         do {
-            cordX = MathUtils.random(0, Gdx.graphics.getWidth());
-            cordY = MathUtils.random(0, Gdx.graphics.getHeight());
+            cordX = MathUtils.random(Map.DEFAULT_DX, Gdx.graphics.getWidth() - Map.DEFAULT_DX);
+            cordY = MathUtils.random(Map.DEFAULT_DY, Gdx.graphics.getHeight() - Map.DEFAULT_DY);
         } while (!map.isAreaClear(cordX, cordY, 32));
 
         for(int i = 0; i < bots.length; i++) {

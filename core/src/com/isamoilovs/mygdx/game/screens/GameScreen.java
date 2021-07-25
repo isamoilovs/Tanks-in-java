@@ -10,9 +10,11 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.isamoilovs.mygdx.game.units.map.Map;
 import com.isamoilovs.mygdx.game.units.map.emitters.BotEmitter;
@@ -45,7 +47,7 @@ public class GameScreen extends AbstractScreen {
     float worldTimer;
     private GameType gameType;
     private PerksEmitter perksEmitter;
-
+    private Image frameImage;
     public void setGameType(GameType gameType) {
         this.gameType = gameType;
     }
@@ -74,6 +76,7 @@ public class GameScreen extends AbstractScreen {
         gameTimer = 0.0f;
         font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
         bulletEmitter = new BulletEmitter(atlas);
+        frameImage = new Image(atlas.findRegion("frame"));
         mousePosition = new Vector2();
         this.worldTimer = 0;
         map = new Map(atlas);
@@ -115,6 +118,7 @@ public class GameScreen extends AbstractScreen {
         group.addActor(pauseButton);
         group.addActor(exitButton);
         stage.addActor(group);
+        //stage.addActor(frameImage);
         group.setPosition(1280-140-20, 720-64-20);
         Gdx.input.setInputProcessor(stage);
         Gdx.input.setCursorCatched(true);
@@ -151,6 +155,19 @@ public class GameScreen extends AbstractScreen {
     }
 
     public void update(float dt) {
+
+        if(gameType == GameType.TWO_PLAYERS) {
+            if(!players.get(0).isActive()  && !players.get(1).isActive()) {
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER);
+            }
+        } else {
+            if(players.get(0).getLives() <= 0) {
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER);
+            }
+        }
+
+
+
         worldTimer += dt;
         mousePosition.set(Gdx.input.getX(), Gdx.input.getY());
         ScreenManager.getInstance().getViewport().unproject(mousePosition);

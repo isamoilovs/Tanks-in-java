@@ -1,6 +1,8 @@
 package com.isamoilovs.mygdx.game.units.weapon;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.isamoilovs.mygdx.game.units.map.Map;
 import com.isamoilovs.mygdx.game.units.tanks.Tank;
 
 public class Bullet {
@@ -27,8 +29,8 @@ public class Bullet {
     public Bullet() {
         this.position = new Vector2();
         this.velocity = new Vector2();
-        this.position.x = 0.0f;
-        this.position.y = 0.0f;
+        this.position.x = 240.0f;
+        this.position.y = 60.0f;
         this.velocity.x = 0.0f;
         this.velocity.y = 0.0f;
         this.damage = 0;
@@ -63,7 +65,7 @@ public class Bullet {
             disActivate();
         }
 
-        if(position.x < 0.0f || position.x > 1280.0f || position.y < 0.0f || position.y > 720)
+        if(position.x <= Map.DEFAULT_DX || position.x >= Gdx.graphics.getWidth() - Map.DEFAULT_DX || position.y <= Map.DEFAULT_DY || position.y >= Gdx.graphics.getHeight() - Map.DEFAULT_DY)
             disActivate();
     }
 }

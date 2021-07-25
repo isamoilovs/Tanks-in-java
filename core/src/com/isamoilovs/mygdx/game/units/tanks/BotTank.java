@@ -1,6 +1,7 @@
 package com.isamoilovs.mygdx.game.units.tanks;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Circle;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.isamoilovs.mygdx.game.screens.GameScreen;
+import com.isamoilovs.mygdx.game.units.map.Map;
 import com.isamoilovs.mygdx.game.units.weapon.Weapon;
 import com.isamoilovs.mygdx.game.utils.Direction;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
@@ -16,15 +18,24 @@ import com.isamoilovs.mygdx.game.utils.Utils;
 public class BotTank extends Tank {
     float aiTimerTo;
     float aiTimer;
-    boolean active;
+    float fireTimer;
     float pursuitRadius;
     Direction preferredDirection;
     Vector3 lastPosition;
     int scoreAmount;
 
+    public void render(SpriteBatch batch) {
+        batch.draw(texture[0][preferredDirection.getIndex() + currentFrame],
+                position.x - ORIGIN_X,
+                position.y - ORIGIN_Y, WIDTH, HEIGHT);
 
-    public boolean isActive() {
-        return active;
+        if (hp < hpMax) {
+            batch.setColor(0, 0, 0, 0.8f);
+            batch.draw(textureHp, position.x - WIDTH / (2 * MULTIPLIER) - 2, position.y + HEIGHT / 2 - 2, 36, 12);
+            batch.setColor(0, 1, 0, 0.5f);
+            batch.draw(textureHp, position.x - WIDTH / (2 * MULTIPLIER), position.y + HEIGHT / 2, (float) hp / hpMax * textureHp.getRegionWidth(), textureHp.getRegionHeight());
+            batch.setColor(1, 1, 1, 1);
+        }
     }
 
     public void activate(float x, float y) {
@@ -37,13 +48,10 @@ public class BotTank extends Tank {
 
     public BotTank(GameScreen gameScreen, TextureAtlas atlas) {
         super(gameScreen, atlas);
+        this.texture = atlas.findRegion("playerTankLvl1").split(TEXTURE_RESOLUTION, TEXTURE_RESOLUTION);
         this.active = false;
-        this.texture = atlas.findRegion("emptyBotTankAtlas");
-        this.animation = new Animation(new TextureRegion(texture), 4, 0.6f);
-        this.position = new Vector2(500.0f, 500.0f);
         this.speed = 100.0f;
         this.weapon = new Weapon(atlas);
-        this.rotationAngle = 0.0f;
         this.lastPosition = new Vector3(0.0f, 0.0f, 0.0f);
         this.hpMax = 5;
         this.pursuitRadius = 300.0f;
@@ -51,18 +59,25 @@ public class BotTank extends Tank {
         this.aiTimerTo = 3.0f;
         this.aiTimer = 0.0f;
         this.ownerType = TankOwner.AI;
-        this.preferredDirection = Direction.UP;
+        this.preferredDirection = Direction.DOWN;
+        this.position = new Vector2(0.0f, 0.0f);
         this.circle = new Circle(position.x, position.y, WIDTH / 2);
         this.scoreAmount = 10;
     }
 
     @Override
     public void update(float dt) {
+        fireTimer+=dt;
         aiTimer += dt;
+        fireTimer += dt;
+        checkMovement(dt);
+        circle.setPosition(position);
+
         if(aiTimer >= aiTimerTo) {
             aiTimer = 0;
             aiTimerTo = MathUtils.random(3.5f, 6.0f);
-            preferredDirection = Direction.values()[MathUtils.random(0, Direction.values().length - 1)];
+            preferredDirection = Direction.values()[MathUtils.random(1, Direction.values().length - 1)];
+            System.out.println(preferredDirection.getIndex());
         }
 
         PlayerTank preferredTarget = null;
@@ -80,16 +95,15 @@ public class BotTank extends Tank {
             }
         }
         float dst = this.position.dst(preferredTarget.getPosition());
+
         if(dst <= pursuitRadius) {
-            rotateCannonToPoint(preferredTarget.getPosition().x, preferredTarget.getPosition().y, dt);
-            fire();
-        } else {
-            cannonRotation = Utils.makeRotation(cannonRotation, rotationAngle, 180, dt);
-            rotationAngle = Utils.checkAngleValue(rotationAngle);
-            cannonRotation = Utils.checkAngleValue(cannonRotation);
+            if(fireTimer >= weapon.getFirePeriod()) {
+                fire();
+                fireTimer = 0;
+            }
         }
 
-        if(Math.abs(position.x - lastPosition.x) < 0.5f && Math.abs(position.y - lastPosition.y) < 0.5f && rotationAngle == preferredDirection.getAngle()) {
+        if(Math.abs(position.x - lastPosition.x) < 0.5f && Math.abs(position.y - lastPosition.y) < 0.5f) {
             lastPosition.z += dt;
             if(lastPosition.z > 0.2f) {
                 aiTimer += 10.0f;
@@ -99,9 +113,16 @@ public class BotTank extends Tank {
             lastPosition.y = position.y;
             lastPosition.z = 0.0f;
         }
-        fireTimer += dt;
-        checkMovement(dt);
-        circle.setPosition(position);
+    }
+
+    public void fire() {
+        double angle = Math.toRadians(preferredDirection.getAngle());
+        gameScreen.getBulletEmitter().activate(this,
+                position.x + MathUtils.cos((float)angle)*WIDTH/2,
+                position.y + MathUtils.sin((float)angle)*WIDTH/2,
+                weapon.getBulletSpeed() * preferredDirection.getVx(),
+                weapon.getBulletSpeed() * preferredDirection.getVy(),
+                weapon.getDamage(), weapon.getBulletLifetime());
     }
 
     public void takeDamage(int damage, Tank playerTank) {
@@ -117,57 +138,27 @@ public class BotTank extends Tank {
     }
 
     public void checkMovement(float dt) {
-        if(preferredDirection == Direction.LEFT) {
-            while (rotationAngle != Direction.LEFT.getAngle()) {
-                rotationAngle = Utils.makeRotation(rotationAngle, 180, ROTATION_SPEED, dt);
-                rotationAngle = Utils.checkAngleValue(rotationAngle);
-                getTankAnimation().update(dt);
-                return;
-            }
-            if (position.x - (float) WIDTH / 2 < 0.0f) {
-                position.x = (float) WIDTH / 2;
-            }
-            getTankAnimation().update(dt);
-            move(Direction.LEFT, dt);
-
-        } else if(preferredDirection == Direction.RIGHT) {
-            while (rotationAngle != Direction.RIGHT.getAngle()) {
-                rotationAngle = Utils.makeRotation(rotationAngle, 0, ROTATION_SPEED, dt);
-                rotationAngle = Utils.checkAngleValue(rotationAngle);
-                getTankAnimation().update(dt);
-                return;
-            }
-            if(position.x + (float) WIDTH / 2 > Gdx.graphics.getWidth()) {
-                position.x = Gdx.graphics.getWidth() - (float) WIDTH / 2;
-            }
-            move(Direction.RIGHT, dt);
-            getTankAnimation().update(dt);
-
-        } else if(preferredDirection == Direction.UP) {
-            while (rotationAngle != Direction.UP.getAngle()) {
-                rotationAngle = Utils.makeRotation(rotationAngle, 90, ROTATION_SPEED, dt);
-                rotationAngle = Utils.checkAngleValue(rotationAngle);
-                getTankAnimation().update(dt);
-                return;
-            }
-            if(position.y + (float) (HEIGHT / 2) > Gdx.graphics.getHeight()) {
-                position.y = Gdx.graphics.getHeight() - (float)(HEIGHT / 2);
-            }
-            move(Direction.UP, dt);
-            getTankAnimation().update(dt);
-
-        } else if(preferredDirection == Direction.DOWN) {
-            while (rotationAngle != Direction.DOWN.getAngle()) {
-                rotationAngle = Utils.makeRotation(rotationAngle, -90, ROTATION_SPEED, dt);
-                rotationAngle = Utils.checkAngleValue(rotationAngle);
-                getTankAnimation().update(dt);
-                return;
-            }
-            if(position.y - (float) (HEIGHT / 2) < 0) {
-                position.y = (float) (HEIGHT / 2);
-            }
-            move(Direction.DOWN, dt);
-            getTankAnimation().update(dt);
+        if (position.x - (float) WIDTH / 2 < Map.DEFAULT_DX) {
+            position.x = Map.DEFAULT_DX + (float) WIDTH / 2;
         }
+        if(position.y - (float) (HEIGHT / 2) < Map.DEFAULT_DY) {
+            position.y = Map.DEFAULT_DY + (float) (HEIGHT / 2);
+        }
+        if(position.x + (float) WIDTH / 2 > Gdx.graphics.getWidth() - Map.DEFAULT_DX) {
+            position.x = Gdx.graphics.getWidth() - (float) WIDTH / 2 - Map.DEFAULT_DX;
+        }
+        if(position.y + (float) (HEIGHT / 2) > Gdx.graphics.getHeight() - Map.DEFAULT_DY) {
+            position.y = Gdx.graphics.getHeight() - (float)(HEIGHT / 2) - Map.DEFAULT_DY;
+        }
+
+        if(preferredDirection == Direction.LEFT) {
+            move(Direction.LEFT, dt);
+        } else if(preferredDirection == Direction.RIGHT) {
+            move(Direction.RIGHT, dt);
+        } else if(preferredDirection == Direction.UP) {
+            move(Direction.UP, dt);
+        } else if(preferredDirection == Direction.DOWN)
+            move(Direction.DOWN, dt);
     }
 }
+
