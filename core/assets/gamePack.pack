@@ -101,16 +101,30 @@ playerTankLvl1
   orig: 128, 16
   offset: 0, 0
   index: -1
-bullet
+earth
   rotate: false
   xy: 300, 96
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
-hp
+eagle
+  rotate: false
+  xy: 300, 112
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+bullet
   rotate: false
   xy: 480, 96
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
+hp
+  rotate: false
+  xy: 496, 96
   size: 32, 8
   orig: 32, 8
   offset: 0, 0

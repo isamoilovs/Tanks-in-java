@@ -66,7 +66,7 @@ public class ScreenManager {
                 game.setScreen(menuScreen);
                 break;
             case GAME:
-                gameScreen.setGameType((GameType)args[0]);
+                gameScreen.setGameType((GameType) args[0]);
                 game.setScreen(gameScreen);
                 break;
             case GAME_OVER:
@@ -82,6 +82,34 @@ public class ScreenManager {
 //                game.setScreen(mapRedactorScreen);
 
         }
+    }
+
+        public void setScreen(ScreenType screenType, int score) {
+            Gdx.input.setCursorCatched(false);
+            Screen currentScreen = game.getScreen();
+            switch (screenType) {
+                case MENU:
+                    game.setScreen(menuScreen);
+                    break;
+                case GAME:
+                    game.setScreen(gameScreen);
+                    break;
+                case GAME_OVER:
+                    gameOverScreen.setScore(score);
+                    game.setScreen(gameOverScreen);
+                    break;
+
+//            case SCORES:
+//                game.setScreen(scoresScreen);
+//                break;
+//            case SETTINGS:
+//                game.setScreen(settingsScreen);
+//            case MAP_REDACTOR:
+//                game.setScreen(mapRedactorScreen);
+
+            }
+
+
         if(currentScreen != null) {
             currentScreen.dispose();
         }

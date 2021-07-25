@@ -67,12 +67,20 @@ public class Map {
     public static final int DEFAULT_DCX = DEFAULT_DX / DEFAULT_CELL_SIZE;
     public static final int DEFAULT_DCY = DEFAULT_DY / DEFAULT_CELL_SIZE;
 
+    public Eagle getEagle() {
+        return eagle;
+    }
+
+    private Eagle eagle;
+
 
     private Cell cells[][];
 
     public Map(TextureAtlas atlas) {
-        this.grassTexture = atlas.findRegion("grass");
+        this.grassTexture = atlas.findRegion("earth");
         loadTextures(atlas);
+        this.eagle = new Eagle(atlas);
+
         this.cells = new Cell[SIZE_CX][SIZE_CY];
         for (int i = 0; i < SIZE_CX; i++) {
             for (int j = 0; j < SIZE_CY; j++) {
@@ -88,6 +96,12 @@ public class Map {
 //                }
             }
         }
+        float cordX, cordY;
+        do {
+            cordX = MathUtils.random(Map.DEFAULT_DX, Gdx.graphics.getWidth() - Map.DEFAULT_DX);
+            cordY = MathUtils.random(Map.DEFAULT_DY, Gdx.graphics.getHeight() - Map.DEFAULT_DY);
+        } while (!isAreaClear(cordX, cordY, eagle.getCircle().radius));
+        eagle.setPosition(cordX, cordY);
 //        for (int i = 0; i < SIZE_CX; i++) {
 //            this.cells[i][0].changeType(WallType.OBSIDIAN);
 //            this.cells[i][SIZE_CY - 1].changeType(WallType.OBSIDIAN);
@@ -111,6 +125,7 @@ public class Map {
                 }
             }
         }
+        eagle.render(batch);
     }
 
     public void checkWallsAndBulletsCollisions(BulletEmitter bulletEmitter) {
@@ -166,7 +181,6 @@ public class Map {
     }
 
     public void update(float dt) {
-
 
     }
 }

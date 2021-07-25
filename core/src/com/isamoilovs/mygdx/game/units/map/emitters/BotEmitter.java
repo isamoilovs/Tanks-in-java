@@ -10,7 +10,7 @@ import com.isamoilovs.mygdx.game.units.tanks.BotTank;
 
 public class BotEmitter {
     private BotTank[] bots;
-    public static final int MAX_BOTS_COUNT = 100;
+    public static final int MAX_BOTS_COUNT = 1;
 
     public BotTank[] getBots() {
         return bots;

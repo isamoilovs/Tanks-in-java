@@ -23,6 +23,10 @@ public class BotTank extends Tank {
     Direction preferredDirection;
     Vector3 lastPosition;
     int scoreAmount;
+    float timeOfHunt;
+    float currentTimeOfHunt;
+    private Circle preferredTarget;
+    float dst;
 
     public void render(SpriteBatch batch) {
         batch.draw(texture[0][preferredDirection.getIndex() + currentFrame],
@@ -54,9 +58,10 @@ public class BotTank extends Tank {
         this.weapon = new Weapon(atlas);
         this.lastPosition = new Vector3(0.0f, 0.0f, 0.0f);
         this.hpMax = 5;
-        this.pursuitRadius = 300.0f;
+        this.pursuitRadius = 500.0f;
         this.hp = hpMax;
         this.aiTimerTo = 3.0f;
+        this.timeOfHunt = 10.0f;
         this.aiTimer = 0.0f;
         this.ownerType = TankOwner.AI;
         this.preferredDirection = Direction.DOWN;
@@ -73,34 +78,69 @@ public class BotTank extends Tank {
         checkMovement(dt);
         circle.setPosition(position);
 
+//        if (currentTimeOfHunt >= timeOfHunt) {
+//            currentTimeOfHunt = 0;
+//            this.preferredTarget = null;
+//            float minDst = Float.MAX_VALUE;
+//            dst = this.position.dst(gameScreen.getMap().getEagle().getPosition());
+//            if (dst < minDst) {
+//                minDst = dst;
+//                preferredTarget = gameScreen.getMap().getEagle().getCircle();
+//            }
+//            for (int i = 0; i < gameScreen.getPlayers().size(); i++) {
+//                PlayerTank player = gameScreen.getPlayers().get(i);
+//                dst = this.position.dst(player.getPosition());
+//                if (dst < minDst) {
+//                    minDst = dst;
+//                    preferredTarget = player.getCircle();
+//                }
+//            }
+//            dst = position.dst2(preferredTarget.x, preferredTarget.y);
+//            System.out.println("TARGET X: " + preferredTarget.x + "; TARGET Y: " + preferredTarget.y);
+//            System.out.println("MY X: " + position.x + "; MY Y: " + position.y);
+//        } else if(dst <= pursuitRadius && currentTimeOfHunt <= timeOfHunt && preferredTarget != null) {
+//            currentTimeOfHunt += dt;
+//            if(position.x >= preferredTarget.x - preferredTarget.radius
+//                    && position.x <= preferredTarget.x + preferredTarget.radius) {
+//                if(preferredTarget.y - position.y >= 0) {
+//                    preferredDirection = Direction.UP;
+//                } else {
+//                    preferredDirection = Direction.DOWN;
+//                }
+//                if(fireTimer >= weapon.getFirePeriod()) {
+//                    fire();
+//                    fireTimer = 0;
+//                }
+//            } else if(position.y >= preferredTarget.y - preferredTarget.radius
+//                    && position.y <= preferredTarget.y + preferredTarget.radius) {
+//                if(preferredTarget.x - position.x >= 0) {
+//                    preferredDirection = Direction.RIGHT;
+//                } else {
+//                    preferredDirection = Direction.LEFT;
+//                }
+//                if(fireTimer >= weapon.getFirePeriod()) {
+//                    fire();
+//                    fireTimer = 0;
+//                }
+//            } else if(position.x < preferredTarget.x - preferredTarget.radius) {
+//                preferredDirection = Direction.RIGHT;
+//            } else if(position.x > preferredTarget.x + preferredTarget.radius) {
+//                preferredDirection = Direction.LEFT;
+//            } else if(position.y < preferredTarget.y - preferredTarget.radius) {
+//                preferredDirection = Direction.UP;
+//            } else if(position.y > preferredTarget.y + preferredTarget.radius) {
+//                preferredDirection = Direction.DOWN;
+//            }
+//
+//        } else
         if(aiTimer >= aiTimerTo) {
             aiTimer = 0;
             aiTimerTo = MathUtils.random(3.5f, 6.0f);
             preferredDirection = Direction.values()[MathUtils.random(1, Direction.values().length - 1)];
-            System.out.println(preferredDirection.getIndex());
         }
-
-        PlayerTank preferredTarget = null;
-        if(gameScreen.getPlayers().size() == 1) {
-            preferredTarget = gameScreen.getPlayers().get(0);
-        } else {
-            float minDst = Float.MAX_VALUE;
-            for (int i = 0; i < gameScreen.getPlayers().size(); i++) {
-                PlayerTank player = gameScreen.getPlayers().get(i);
-                float dst = this.position.dst(player.getPosition());
-                if(dst < minDst) {
-                    minDst = dst;
-                    preferredTarget = player;
-                }
-            }
-        }
-        float dst = this.position.dst(preferredTarget.getPosition());
-
-        if(dst <= pursuitRadius) {
-            if(fireTimer >= weapon.getFirePeriod()) {
-                fire();
-                fireTimer = 0;
-            }
+        if(fireTimer >= weapon.getFirePeriod()) {
+            fire();
+            fireTimer = 0;
         }
 
         if(Math.abs(position.x - lastPosition.x) < 0.5f && Math.abs(position.y - lastPosition.y) < 0.5f) {

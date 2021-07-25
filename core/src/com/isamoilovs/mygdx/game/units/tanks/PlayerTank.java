@@ -34,12 +34,12 @@ public class PlayerTank extends Tank{
         this.keysControl = keysControl;
         this.index = index;
         this.ownerType = TankOwner.PLAYER;
-        this.speed = 100.0f;
+        this.speed = 200.0f;
         this.preferredDirection = Direction.UP;
         this.weapon = new Weapon(atlas);
         this.hpMax = 10;
         this.hp = 5;
-        this.lives = 100;
+        this.lives = 1;
         this.active = true;
         this.tmpString = new StringBuilder();
         this.ableToBeDamaged = true;
@@ -51,6 +51,9 @@ public class PlayerTank extends Tank{
         this.position = new Vector2(cordX, cordY);
         this.circle = new Circle(position.x, position.y, (float) WIDTH / 2);
     }
+     public int getScore() {
+        return score;
+     }
 
     public void render(SpriteBatch batch) {
         if(lives > 0) {

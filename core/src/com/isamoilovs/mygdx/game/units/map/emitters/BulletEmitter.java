@@ -3,6 +3,7 @@ package com.isamoilovs.mygdx.game.units.map.emitters;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.isamoilovs.mygdx.game.units.map.Eagle;
 import com.isamoilovs.mygdx.game.units.tanks.BotTank;
 import com.isamoilovs.mygdx.game.units.tanks.PlayerTank;
 import com.isamoilovs.mygdx.game.units.weapon.Bullet;

@@ -1,6 +1,7 @@
 package com.isamoilovs.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -127,7 +128,7 @@ public class GameScreen extends AbstractScreen {
     @Override
     public void render(float delta) {
         update(delta);
-        ScreenUtils.clear(0, 0.0f, 0, 1);
+        ScreenUtils.clear(new Color(0x3c3c3cff));
         batch.setProjectionMatrix(ScreenManager.getInstance().getCamera().combined);
         batch.begin();
         map.render(batch);
@@ -141,9 +142,7 @@ public class GameScreen extends AbstractScreen {
         }
         perksEmitter.render(batch);
         batch.end();
-
         stage.draw();
-
         batch.begin();
         batch.draw(cursor, mousePosition.x - 16, mousePosition.y - 16,
                 cursor.getRegionWidth() / 2, cursor.getRegionHeight() / 2, cursor.getRegionWidth(), cursor.getRegionHeight(), 1, 1, -worldTimer*50);
@@ -158,11 +157,11 @@ public class GameScreen extends AbstractScreen {
 
         if(gameType == GameType.TWO_PLAYERS) {
             if(!players.get(0).isActive()  && !players.get(1).isActive()) {
-                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER);
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER, players.get(0).getScore());
             }
         } else {
             if(players.get(0).getLives() <= 0) {
-                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER);
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER, players.get(0).getScore());
             }
         }
 
