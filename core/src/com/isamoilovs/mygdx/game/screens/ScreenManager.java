@@ -20,10 +20,11 @@ public class ScreenManager {
     private GameOverScreen gameOverScreen;
     private GameScreen gameScreen;
     private MenuScreen menuScreen;
+    private ScoresScreen scoresScreen;
     private Viewport viewport;
     private Camera camera;
-    public static final int WORLD_WIDTH = 1280;
-    public static final int WORLD_HEIGHT = 720;
+    public static final int WORLD_WIDTH = Gdx.graphics.getWidth();
+    public static final int WORLD_HEIGHT = Gdx.graphics.getHeight();
 
     public  void init(Game game, SpriteBatch batch) {
         this.game = game;
@@ -34,6 +35,7 @@ public class ScreenManager {
         this.gameScreen = new GameScreen(batch);
         this.menuScreen = new MenuScreen(batch);
         this.gameOverScreen = new GameOverScreen(batch);
+        this.scoresScreen = new ScoresScreen(batch);
     }
 
     public static ScreenManager getInstance() { return ourInstance; }
@@ -47,7 +49,7 @@ public class ScreenManager {
         return camera;
     }
 
-    public  void resize(int width, int height) {
+    public void resize(int width, int height) {
         viewport.update(width, height);
         viewport.apply();
     }
@@ -68,19 +70,22 @@ public class ScreenManager {
             case GAME:
                 gameScreen.setGameType((GameType) args[0]);
                 game.setScreen(gameScreen);
+                gameScreen.setPaused(false);
                 break;
             case GAME_OVER:
                 game.setScreen(gameOverScreen);
                 break;
-
-//            case SCORES:
-//                game.setScreen(scoresScreen);
-//                break;
+            case SCORES:
+                game.setScreen(scoresScreen);
+                break;
 //            case SETTINGS:
 //                game.setScreen(settingsScreen);
 //            case MAP_REDACTOR:
 //                game.setScreen(mapRedactorScreen);
 
+        }
+        if(currentScreen != null) {
+            currentScreen.dispose();
         }
     }
 
@@ -88,12 +93,6 @@ public class ScreenManager {
             Gdx.input.setCursorCatched(false);
             Screen currentScreen = game.getScreen();
             switch (screenType) {
-                case MENU:
-                    game.setScreen(menuScreen);
-                    break;
-                case GAME:
-                    game.setScreen(gameScreen);
-                    break;
                 case GAME_OVER:
                     gameOverScreen.setScore(score);
                     game.setScreen(gameOverScreen);

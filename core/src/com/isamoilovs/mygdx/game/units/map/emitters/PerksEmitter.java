@@ -4,14 +4,12 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.isamoilovs.mygdx.game.screens.GameScreen;
 import com.isamoilovs.mygdx.game.units.map.Map;
-import com.isamoilovs.mygdx.game.units.tanks.Animation;
 import com.isamoilovs.mygdx.game.units.tanks.PlayerTank;
-import org.graalvm.compiler.loop.MathUtil;
 
 import java.util.List;
 
@@ -47,7 +45,7 @@ public class PerksEmitter {
         private Vector2 position;
         private float currentTime;
         private int frame;
-        private Circle circle;
+        private Rectangle circle;
 
         public PerkType getPerkType() {
             return perkType;
@@ -67,7 +65,7 @@ public class PerksEmitter {
         }
 
 
-        public Circle getPerkCircle() {
+        public Rectangle getPerkCircle() {
             return circle;
         }
 
@@ -75,7 +73,7 @@ public class PerksEmitter {
             this.perkType = perkType;
             this.active = false;
             this.position = new Vector2(0, 0);
-            this.circle = new Circle();
+            this.circle = new Rectangle();
             circle.setPosition(position);
         }
     }
@@ -106,7 +104,7 @@ public class PerksEmitter {
         do {
             cordX = MathUtils.random(240.0f, Gdx.graphics.getWidth() - 240.f);
             cordY = MathUtils.random(60.f, Gdx.graphics.getHeight() - 60.0f);
-        } while (!map.isAreaClear(cordX, cordY, 32));
+        } while (!map.isAreaClear(cordX, cordY, perks[0].circle.getWidth() / 2));
 
         for (int i = 0; i < perks.length; i++) {
             if(!perks[i].isActive()) {
@@ -148,16 +146,16 @@ public class PerksEmitter {
 
     public void checkPerkAndPlayerCollision(List<PlayerTank> playerTanks) {
         for (int i = 0; i < playerTanks.size(); i++) {
-            Circle playerCircle = new Circle(playerTanks.get(i).getCircle());
+            Rectangle playerCircle = new Rectangle(playerTanks.get(i).getRectangle());
             for (int j = 0; j < perks.length; j++) {
-                Circle perkCircle = new Circle(perks[j].getPerkCircle());
-                if(perkCircle.overlaps(playerCircle)
+                Rectangle perkCircle = new Rectangle(perks[j].getPerkCircle());
+                if(perkCircle.contains(playerCircle.x, playerCircle.y)
                         && (playerTanks.get(i).isAbleToBeDamaged())
                         && perks[j].getPerkType() == PerksEmitter.PerkType.SHIELD) {
                     playerTanks.get(i).getShield();
                     perks[j].disActivate();
                 }
-                if(perkCircle.overlaps(playerCircle)
+                if(perkCircle.contains(playerCircle.x, playerCircle.y)
                         && perks[j].getPerkType() == PerksEmitter.PerkType.MED_KIT) {
                     perks[j].disActivate();
                     playerTanks.get(i).repair();

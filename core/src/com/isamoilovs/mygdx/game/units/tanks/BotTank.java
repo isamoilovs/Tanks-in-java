@@ -3,17 +3,12 @@ package com.isamoilovs.mygdx.game.units.tanks;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.isamoilovs.mygdx.game.screens.GameScreen;
-import com.isamoilovs.mygdx.game.units.map.Map;
 import com.isamoilovs.mygdx.game.units.weapon.Weapon;
 import com.isamoilovs.mygdx.game.utils.Direction;
+import com.isamoilovs.mygdx.game.utils.GameConsts;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
-import com.isamoilovs.mygdx.game.utils.Utils;
 
 public class BotTank extends Tank {
     float aiTimerTo;
@@ -25,19 +20,19 @@ public class BotTank extends Tank {
     int scoreAmount;
     float timeOfHunt;
     float currentTimeOfHunt;
-    private Circle preferredTarget;
+    private Rectangle preferredTarget;
     float dst;
 
     public void render(SpriteBatch batch) {
         batch.draw(texture[0][preferredDirection.getIndex() + currentFrame],
-                position.x - ORIGIN_X,
-                position.y - ORIGIN_Y, WIDTH, HEIGHT);
+                position.x - GameConsts.TANK_WIDTH / 2,
+                position.y - GameConsts.TANK_HEIGHT / 2, GameConsts.TANK_WIDTH, GameConsts.TANK_HEIGHT);
 
         if (hp < hpMax) {
             batch.setColor(0, 0, 0, 0.8f);
-            batch.draw(textureHp, position.x - WIDTH / (2 * MULTIPLIER) - 2, position.y + HEIGHT / 2 - 2, 36, 12);
+            batch.draw(textureHp, position.x - GameConsts.TANK_WIDTH / (2 * GameConsts.TANK_MULTIPLIER) - 2, position.y + GameConsts.TANK_HEIGHT / 2 - 2, 36, 12);
             batch.setColor(0, 1, 0, 0.5f);
-            batch.draw(textureHp, position.x - WIDTH / (2 * MULTIPLIER), position.y + HEIGHT / 2, (float) hp / hpMax * textureHp.getRegionWidth(), textureHp.getRegionHeight());
+            batch.draw(textureHp, position.x - GameConsts.TANK_WIDTH / (2 * GameConsts.TANK_MULTIPLIER), position.y + GameConsts.TANK_HEIGHT / 2, (float) hp / hpMax * textureHp.getRegionWidth(), textureHp.getRegionHeight());
             batch.setColor(1, 1, 1, 1);
         }
     }
@@ -46,13 +41,14 @@ public class BotTank extends Tank {
         active = true;
         this.hp = hpMax;
         position.set(x, y);
+        rectangle.setPosition(x - rectangle.getWidth()/2, y- rectangle.getHeight()/2);
         aiTimer = 0.0f;
         preferredDirection = Direction.values()[MathUtils.random(0, Direction.values().length - 1)];
     }
 
     public BotTank(GameScreen gameScreen, TextureAtlas atlas) {
         super(gameScreen, atlas);
-        this.texture = atlas.findRegion("playerTankLvl1").split(TEXTURE_RESOLUTION, TEXTURE_RESOLUTION);
+        this.texture = atlas.findRegion("playerTankLvl1").split(GameConsts.TANK_TEXTURE_RESOLUTION, GameConsts.TANK_TEXTURE_RESOLUTION);
         this.active = false;
         this.speed = 100.0f;
         this.weapon = new Weapon(atlas);
@@ -66,7 +62,7 @@ public class BotTank extends Tank {
         this.ownerType = TankOwner.AI;
         this.preferredDirection = Direction.DOWN;
         this.position = new Vector2(0.0f, 0.0f);
-        this.circle = new Circle(position.x, position.y, WIDTH / 2);
+        this.rectangle = new Rectangle(position.x, position.y, (float) GameConsts.TANK_WIDTH, (float) GameConsts.TANK_HEIGHT);
         this.scoreAmount = 10;
     }
 
@@ -76,7 +72,7 @@ public class BotTank extends Tank {
         aiTimer += dt;
         fireTimer += dt;
         checkMovement(dt);
-        circle.setPosition(position);
+        rectangle.setPosition(position.x - rectangle.getWidth() / 2, position.y - rectangle.getHeight() / 2);
 
 //        if (currentTimeOfHunt >= timeOfHunt) {
 //            currentTimeOfHunt = 0;
@@ -158,8 +154,8 @@ public class BotTank extends Tank {
     public void fire() {
         double angle = Math.toRadians(preferredDirection.getAngle());
         gameScreen.getBulletEmitter().activate(this,
-                position.x + MathUtils.cos((float)angle)*WIDTH/2,
-                position.y + MathUtils.sin((float)angle)*WIDTH/2,
+                position.x + MathUtils.cos((float)angle)*GameConsts.TANK_WIDTH/2,
+                position.y + MathUtils.sin((float)angle)*GameConsts.TANK_WIDTH/2,
                 weapon.getBulletSpeed() * preferredDirection.getVx(),
                 weapon.getBulletSpeed() * preferredDirection.getVy(),
                 weapon.getDamage(), weapon.getBulletLifetime());
@@ -178,17 +174,17 @@ public class BotTank extends Tank {
     }
 
     public void checkMovement(float dt) {
-        if (position.x - (float) WIDTH / 2 < Map.DEFAULT_DX) {
-            position.x = Map.DEFAULT_DX + (float) WIDTH / 2;
+        if (position.x - (float) GameConsts.TANK_WIDTH / 2 < GameConsts.MAP_DEFAULT_DX) {
+            position.x = GameConsts.MAP_DEFAULT_DX + (float) GameConsts.TANK_WIDTH / 2;
         }
-        if(position.y - (float) (HEIGHT / 2) < Map.DEFAULT_DY) {
-            position.y = Map.DEFAULT_DY + (float) (HEIGHT / 2);
+        if(position.y - (float) (GameConsts.TANK_HEIGHT / 2) < GameConsts.MAP_DEFAULT_DY) {
+            position.y = GameConsts.MAP_DEFAULT_DY + (float) (GameConsts.TANK_HEIGHT / 2);
         }
-        if(position.x + (float) WIDTH / 2 > Gdx.graphics.getWidth() - Map.DEFAULT_DX) {
-            position.x = Gdx.graphics.getWidth() - (float) WIDTH / 2 - Map.DEFAULT_DX;
+        if(position.x + (float) GameConsts.TANK_WIDTH / 2 > Gdx.graphics.getWidth() - GameConsts.MAP_DEFAULT_DX) {
+            position.x = Gdx.graphics.getWidth() - (float) GameConsts.TANK_WIDTH / 2 - GameConsts.MAP_DEFAULT_DX;
         }
-        if(position.y + (float) (HEIGHT / 2) > Gdx.graphics.getHeight() - Map.DEFAULT_DY) {
-            position.y = Gdx.graphics.getHeight() - (float)(HEIGHT / 2) - Map.DEFAULT_DY;
+        if(position.y + (float) (GameConsts.TANK_HEIGHT / 2) > Gdx.graphics.getHeight() - GameConsts.MAP_DEFAULT_DY) {
+            position.y = Gdx.graphics.getHeight() - (float)(GameConsts.TANK_HEIGHT / 2) - GameConsts.MAP_DEFAULT_DY;
         }
 
         if(preferredDirection == Direction.LEFT) {

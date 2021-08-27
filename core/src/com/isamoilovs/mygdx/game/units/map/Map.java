@@ -1,18 +1,19 @@
 package com.isamoilovs.mygdx.game.units.map;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.isamoilovs.mygdx.game.units.map.emitters.BulletEmitter;
 import com.isamoilovs.mygdx.game.units.weapon.Bullet;
+import com.isamoilovs.mygdx.game.utils.GameConsts;
 
 public class Map {
     public enum WallType {
-        STONE_WALL(5, 0, true, false, false),
-        BRICK_WALL(3, 1, true, false, false),
-        OBSIDIAN(1, 2, false, false, false),
+        STONE_WALL(1, 0, true, false, false),
+        BRICK_WALL(1, 2, true, false, false),
+        OBSIDIAN(1, 1, false, false, false),
         WATER(1, 3, true, false, true),
         NONE(0, 0, false, true, true);
 
@@ -34,10 +35,12 @@ public class Map {
     private class Cell {
         WallType type;
         int hp;
+        Rectangle rectangle;
 
-        public Cell(WallType type) {
+        public Cell(WallType type, int x, int y) {
             this.type = type;
             this.hp = type.maxHP;
+            this.rectangle = new Rectangle(x, y, GameConsts.MAP_DEFAULT_CELL_SIZE, GameConsts.MAP_DEFAULT_CELL_SIZE);
         }
 
         public void damage() {
@@ -57,15 +60,10 @@ public class Map {
 
     private TextureRegion grassTexture;
     private TextureRegion wallsTextures[][];
-    public static final int WIDTH = 800;
-    public static final int HEIGHT = 576;
-    public static final int DEFAULT_CELL_SIZE = 32;
-    public static final int SIZE_CX = WIDTH / DEFAULT_CELL_SIZE;
-    public static final int SIZE_CY = HEIGHT / DEFAULT_CELL_SIZE;
-    public static final int DEFAULT_DX = (Gdx.graphics.getWidth() - WIDTH) / 2;
-    public static final int DEFAULT_DY = (Gdx.graphics.getHeight() - HEIGHT) / 2;
-    public static final int DEFAULT_DCX = DEFAULT_DX / DEFAULT_CELL_SIZE;
-    public static final int DEFAULT_DCY = DEFAULT_DY / DEFAULT_CELL_SIZE;
+    final float waterTime = 0.3f;
+    private int waterFrame;
+    private int prevWaterFrame;
+    private float currentTime;
 
     public Eagle getEagle() {
         return eagle;
@@ -80,48 +78,53 @@ public class Map {
         this.grassTexture = atlas.findRegion("earth");
         loadTextures(atlas);
         this.eagle = new Eagle(atlas);
-
-        this.cells = new Cell[SIZE_CX][SIZE_CY];
-        for (int i = 0; i < SIZE_CX; i++) {
-            for (int j = 0; j < SIZE_CY; j++) {
-                cells[i][j] = new Cell(WallType.NONE);
+        waterFrame = 0;
+        currentTime = 0;
+        prevWaterFrame = -1;
+        this.cells = new Cell[GameConsts.MAP_SIZE_CX][GameConsts.MAP_SIZE_CY];
+        for (int i = 0; i < GameConsts.MAP_SIZE_CX; i++) {
+            for (int j = 0; j < GameConsts.MAP_SIZE_CY; j++) {
+                cells[i][j] = new Cell(WallType.NONE, GameConsts.MAP_DEFAULT_DX + GameConsts.MAP_DEFAULT_CELL_SIZE * i, GameConsts.MAP_DEFAULT_DY + GameConsts.MAP_DEFAULT_CELL_SIZE * j);
                 int cx = (int) (i / 4);
                 int cy = (int) (j / 4);
-//                if(cy % 2 ==0 && cx % 2 ==0) {
-//                    if(MathUtils.random() < 0.8f) {
-//                        this.cells[i][j].changeType(WallType.WATER);
-//                    } else {
-//                        this.cells[i][j].changeType(WallType.STONE_WALL);
-//                    }
-//                }
+                if(cy % 2 ==0 && cx % 2 ==0) {
+                    if(MathUtils.random() < 0.8f) {
+                        this.cells[i][j].changeType(WallType.WATER);
+                    } else {
+                        this.cells[i][j].changeType(WallType.STONE_WALL);
+                    }
+                }
             }
         }
-        float cordX, cordY;
-        do {
-            cordX = MathUtils.random(Map.DEFAULT_DX, Gdx.graphics.getWidth() - Map.DEFAULT_DX);
-            cordY = MathUtils.random(Map.DEFAULT_DY, Gdx.graphics.getHeight() - Map.DEFAULT_DY);
-        } while (!isAreaClear(cordX, cordY, eagle.getCircle().radius));
-        eagle.setPosition(cordX, cordY);
-//        for (int i = 0; i < SIZE_CX; i++) {
+        eagle.setPosition(GameConsts.MAP_DEFAULT_DX +GameConsts.MAP_WIDTH /2, eagle.getCircle().radius + GameConsts.MAP_DEFAULT_DY);
+//        for (int i = 0; i < GameConsts.MAP_SIZE_CX; i++) {
 //            this.cells[i][0].changeType(WallType.OBSIDIAN);
-//            this.cells[i][SIZE_CY - 1].changeType(WallType.OBSIDIAN);
+//            this.cells[i][GameConsts.MAP_SIZE_CY - 1].changeType(WallType.OBSIDIAN);
 //        }
-//        for (int i = 0; i < SIZE_CY; i++) {
+//        for (int i = 0; i < GameConsts.MAP_SIZE_CY; i++) {
 //            this.cells[0][i].changeType(WallType.OBSIDIAN);
-//            this.cells[SIZE_CX - 1][i].changeType(WallType.OBSIDIAN);
+//            this.cells[GameConsts.MAP_SIZE_CX - 1][i].changeType(WallType.OBSIDIAN);
 //        }
     }
 
     public void render(SpriteBatch batch) {
-        for (int i = 0; i < SIZE_CX; i++) {
-            for (int j = 0; j < SIZE_CY; j++) {
-                batch.draw(grassTexture, i*DEFAULT_CELL_SIZE + DEFAULT_DX, j*DEFAULT_CELL_SIZE + DEFAULT_DY, DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
+        for (int i = 0; i < GameConsts.MAP_SIZE_CX; i++) {
+            for (int j = 0; j < GameConsts.MAP_SIZE_CY; j++) {
+                batch.draw(grassTexture, i*GameConsts.MAP_DEFAULT_CELL_SIZE + GameConsts.MAP_DEFAULT_DX, j*GameConsts.MAP_DEFAULT_CELL_SIZE + GameConsts.MAP_DEFAULT_DY, GameConsts.MAP_DEFAULT_CELL_SIZE, GameConsts.MAP_DEFAULT_CELL_SIZE);
             }
         }
-        for (int i = 0; i < SIZE_CX; i++) {
-            for (int j = 0; j < SIZE_CY; j++) {
-                if(cells[i][j].type != WallType.NONE) {
-                    batch.draw(wallsTextures[cells[i][j].type.index][cells[i][j].hp - 1], i * DEFAULT_CELL_SIZE + DEFAULT_DX, j * DEFAULT_CELL_SIZE + DEFAULT_DY,  DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
+        for (int i = 0; i < GameConsts.MAP_SIZE_CX; i++) {
+            for (int j = 0; j < GameConsts.MAP_SIZE_CY; j++) {
+                if(cells[i][j].type != WallType.NONE && cells[i][j].type != WallType.WATER) {
+                    batch.draw(wallsTextures[cells[i][j].type.index][cells[i][j].hp - 1], i * GameConsts.MAP_DEFAULT_CELL_SIZE + GameConsts.MAP_DEFAULT_DX, j * GameConsts.MAP_DEFAULT_CELL_SIZE + GameConsts.MAP_DEFAULT_DY,  GameConsts.MAP_DEFAULT_CELL_SIZE, GameConsts.MAP_DEFAULT_CELL_SIZE);
+                } else if(cells[i][j].type == WallType.WATER) {
+                    if (currentTime > waterTime){
+                        currentTime = 0;
+                        prevWaterFrame = waterFrame;
+                        do {waterFrame = MathUtils.random(0, 2);
+                        } while (waterFrame == prevWaterFrame);
+                    }
+                    batch.draw(wallsTextures[cells[i][j].type.index][waterFrame], i * GameConsts.MAP_DEFAULT_CELL_SIZE + GameConsts.MAP_DEFAULT_DX, j * GameConsts.MAP_DEFAULT_CELL_SIZE + GameConsts.MAP_DEFAULT_DY,  GameConsts.MAP_DEFAULT_CELL_SIZE, GameConsts.MAP_DEFAULT_CELL_SIZE);
                 }
             }
         }
@@ -129,14 +132,13 @@ public class Map {
     }
 
     public void checkWallsAndBulletsCollisions(BulletEmitter bulletEmitter) {
-
         for (int i = 0; i < bulletEmitter.getBullets().length; i++) {
             Bullet bullet = bulletEmitter.getBullets()[i];
             if(bullet.isActive()) {
-                int cx = (int) ((bullet.getPosition().x - DEFAULT_DX) / DEFAULT_CELL_SIZE);
-                int cy = (int) ((bullet.getPosition().y - DEFAULT_DY) / DEFAULT_CELL_SIZE);
+                int cx = (int) ((bullet.getPosition().x - GameConsts.MAP_DEFAULT_DX) / GameConsts.MAP_DEFAULT_CELL_SIZE);
+                int cy = (int) ((bullet.getPosition().y - GameConsts.MAP_DEFAULT_DY) / GameConsts.MAP_DEFAULT_CELL_SIZE);
 
-                if(cx >= 0 && cy >= 0 && cx <= SIZE_CX && cy <= SIZE_CY) {
+                if(cx >= 0 && cy >= 0 && cx < GameConsts.MAP_SIZE_CX && cy < GameConsts.MAP_SIZE_CY) {
                     if(!cells[cx][cy].type.bulletPassable) {
                         cells[cx][cy].damage();
                         bullet.disActivate();
@@ -147,23 +149,23 @@ public class Map {
     }
 
     public boolean isAreaClear(float x, float y, float halfSize) {
-        int leftX = (int) ((x - halfSize - DEFAULT_DX) / DEFAULT_CELL_SIZE);
-        int rightX = (int) ((x + halfSize - DEFAULT_DX) / DEFAULT_CELL_SIZE);
+        int leftX = (int) ((x - halfSize - GameConsts.MAP_DEFAULT_DX) / GameConsts.MAP_DEFAULT_CELL_SIZE);
+        int rightX = (int) ((x + halfSize - GameConsts.MAP_DEFAULT_DX) / GameConsts.MAP_DEFAULT_CELL_SIZE);
 
-        int bottomY = (int) ((y - halfSize - DEFAULT_DY) / DEFAULT_CELL_SIZE);
-        int topY = (int) ((y + halfSize - DEFAULT_DY) / DEFAULT_CELL_SIZE);
+        int bottomY = (int) ((y - halfSize - GameConsts.MAP_DEFAULT_DY) / GameConsts.MAP_DEFAULT_CELL_SIZE);
+        int topY = (int) ((y + halfSize - GameConsts.MAP_DEFAULT_DY) / GameConsts.MAP_DEFAULT_CELL_SIZE);
 
         if (leftX < 0) {
             leftX = 0;
         }
-        if(rightX >= SIZE_CX) {
-            rightX = SIZE_CX - 1;
+        if(rightX >= GameConsts.MAP_SIZE_CX) {
+            rightX = GameConsts.MAP_SIZE_CX - 1;
         }
         if (bottomY < 0) {
             bottomY = 0;
         }
-        if(topY >= SIZE_CY) {
-            topY = SIZE_CY - 1;
+        if(topY >= GameConsts.MAP_SIZE_CY) {
+            topY = GameConsts.MAP_SIZE_CY - 1;
         }
 
         for (int i = leftX; i <= rightX; i++) {
@@ -177,10 +179,10 @@ public class Map {
     }
 
     public void loadTextures(TextureAtlas atlas) {
-        wallsTextures = new TextureRegion(atlas.findRegion("walls")).split(DEFAULT_CELL_SIZE, DEFAULT_CELL_SIZE);
+        wallsTextures = new TextureRegion(atlas.findRegion("walls")).split(8, 8);
     }
 
     public void update(float dt) {
-
+        currentTime += dt;
     }
 }

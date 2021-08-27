@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.isamoilovs.mygdx.game.screens.ScreenManager;
 import com.isamoilovs.mygdx.game.units.map.emitters.BulletEmitter;
 import com.isamoilovs.mygdx.game.units.weapon.Bullet;
-import com.isamoilovs.mygdx.game.utils.GameType;
+import com.isamoilovs.mygdx.game.utils.GameConsts;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
 
 public class Eagle {
@@ -36,24 +36,25 @@ public class Eagle {
 
     public Eagle(TextureAtlas atlas) {
         this.hpMax = 10;
-        this.hp = hpMax;
+        this.hp = 4;
         this.position = new Vector2(0.0f,0.0f);
         this.textureRegion = atlas.findRegion("eagle");
         this.hpTexture = atlas.findRegion("hp");
         this.circle = new Circle();
         circle.setPosition(position);
-        this.circle.radius = Map.DEFAULT_CELL_SIZE;
+        this.circle.radius = GameConsts.MAP_DEFAULT_CELL_SIZE *2;
     }
 
     public void render(SpriteBatch batch) {
-        if (hp < hpMax) {
+        if(hp < hpMax) {
             batch.setColor(0, 0, 0, 0.8f);
-            batch.draw(hpTexture, position.x - circle.radius / 2 - 2, position.y + circle.radius  / 2 - 2, 36, 12);
+            batch.draw(hpTexture, position.x, position.y + circle.radius / 2 - 2, 36, 12);
             batch.setColor(0, 1, 0, 0.5f);
             batch.draw(hpTexture, position.x - circle.radius / 2, position.y + circle.radius / 2 , (float) hp / hpMax * hpTexture.getRegionWidth(), hpTexture.getRegionHeight());
             batch.setColor(1, 1, 1, 1);
+            batch.draw(textureRegion, position.x-circle.radius / 2, position.y - circle.radius/2, circle.radius, circle.radius);
         } else {
-            batch.draw(textureRegion, position.x, position.y, circle.radius, circle.radius);
+            batch.draw(textureRegion, position.x-circle.radius / 2, position.y - circle.radius/2, circle.radius, circle.radius);
         }
     }
 

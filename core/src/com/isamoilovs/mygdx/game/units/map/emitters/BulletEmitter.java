@@ -3,7 +3,6 @@ package com.isamoilovs.mygdx.game.units.map.emitters;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.isamoilovs.mygdx.game.units.map.Eagle;
 import com.isamoilovs.mygdx.game.units.tanks.BotTank;
 import com.isamoilovs.mygdx.game.units.tanks.PlayerTank;
 import com.isamoilovs.mygdx.game.units.weapon.Bullet;
@@ -59,7 +58,7 @@ public class BulletEmitter {
                 for (int j = 0; j < bots.length; j++) {
                     BotTank bot = bots[j];
                     if (bot.isActive()) {
-                        if (checkBulletOwner(bot, bullet, friendlyFire) && bot.getCircle().contains(bullet.getPosition())) {
+                        if (checkBulletOwner(bot, bullet, friendlyFire) && bot.getRectangle().contains(bullet.getPosition())) {
                             bullet.disActivate();
                             bot.takeDamage(bullet.getDamage(), bullet.getOwner());
                             break;
@@ -69,7 +68,7 @@ public class BulletEmitter {
 
                 for (int j = 0; j < players.size(); j++) {
                     PlayerTank player = players.get(j);
-                    if (checkBulletOwner(player, bullet, friendlyFire) && player.getCircle().contains(bullet.getPosition())) {
+                    if (checkBulletOwner(player, bullet, friendlyFire) && player.getRectangle().contains(bullet.getPosition())) {
                         if (player.isAbleToBeDamaged()) {
                             bullet.disActivate();
                             player.takeDamage(bullet.getDamage());
