@@ -3,6 +3,8 @@ package com.isamoilovs.mygdx.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -23,18 +25,29 @@ import com.isamoilovs.mygdx.game.utils.RectDrawable;
 public class MenuScreen extends AbstractScreen {
     private SpriteBatch batch;
     private TextureAtlas atlas;
-    private BitmapFont font24;
+    private BitmapFont font24 ;
     private Stage stage;
-    private Boolean dialogFlag;
     public MenuScreen(SpriteBatch batch) {
         this.batch = batch;
     }
-    final Dialog dialog = makeDialog();
 
     @Override
     public void show() {
-        stage = new Stage();
+        loadButtons();
+        Gdx.input.setInputProcessor(stage);
+    }
 
+    @Override
+    public void render(float delta) {
+        update(delta);
+        ScreenUtils.clear(0.0f, 0.0f, 0.0f, 1);
+        stage.draw();
+    }
+
+    public void loadButtons() {
+        atlas = new TextureAtlas("gamePack.pack");
+        font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));;
+        stage = new Stage();
         Skin skin = new Skin();
         skin.add("simpleButton", new TextureRegion(atlas.findRegion("simpleButton")));
         skin.add("logo", new TextureRegion(atlas.findRegion("logo")));
@@ -93,65 +106,10 @@ public class MenuScreen extends AbstractScreen {
         group.setScale(scale);
         stage.addActor(group);
         group.setPosition(Gdx.graphics.getWidth() / 2 - start1Button.getWidth() / 2 * scale, 0);
-        Gdx.input.setInputProcessor(stage);
-    }
-
-    public Dialog makeDialog() {
-        dialogFlag = false;
-        atlas = new TextureAtlas("gamePack.pack");
-        font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
-        TextureRegion buttonDialog = new TextureRegion(atlas.findRegion("simpleButton"));
-        Skin skin = new Skin();
-        skin.add("buttonDialog", buttonDialog);
-        Window.WindowStyle windowStyle = new Window.WindowStyle(font24, Color.WHITE, new RectDrawable(Color.GRAY, 1));
-        Label.LabelStyle labelStyleHeader = new Label.LabelStyle(font24, new Color(1.0f, 1.0f, 1.0f, 1.0f));
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.getDrawable("buttonDialog");
-        textButtonStyle.font = font24;
-        final TextButton dialogYes = new TextButton("YES", textButtonStyle);
-        final TextButton dialogNo = new TextButton("NO", textButtonStyle);
-        final Dialog quitGame = new Dialog("", windowStyle);
-        final Label label = new Label("Quit the game?", labelStyleHeader);
-        label.setAlignment(Align.center);
-        label.setFontScale(2);
-        quitGame.text(label);
-
-        dialogYes.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
-            }
-        });
-
-        dialogNo.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                quitGame.hide();
-                dialogFlag = false;
-            }
-        });
-        quitGame.button(dialogYes);
-        quitGame.button(dialogNo);
-        return quitGame;
-    }
-
-    @Override
-    public void render(float delta) {
-        update(delta);
-        if(dialogFlag) {
-            dialog.setPosition((Gdx.graphics.getWidth() - dialog.getWidth()) / 2, (Gdx.graphics.getHeight() - dialog.getHeight()) / 2);
-            dialog.show(stage);
-        }
-        ScreenUtils.clear(0, 0, 0, 1);
-        stage.draw();
     }
 
     public void update(float dt) {
         stage.act(dt);
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
-            dialogFlag = !dialogFlag;
-        }
-        System.out.println(dialogFlag);
     }
 
     @Override

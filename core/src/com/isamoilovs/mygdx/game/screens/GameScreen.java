@@ -1,6 +1,7 @@
 package com.isamoilovs.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -8,9 +9,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
@@ -131,7 +130,6 @@ public class GameScreen extends AbstractScreen {
     }
 
     public void update(float dt) {
-
         if(gameType == GameType.TWO_PLAYERS) {
             if(!players.get(0).isActive()  && !players.get(1).isActive()) {
                 ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER, players.get(0).getScore());
@@ -247,7 +245,6 @@ public class GameScreen extends AbstractScreen {
         });
         quitGame.button(dialogYes);
         quitGame.button(dialogNo);
-
 
         int space = (int)pause.getWidth() / 10;
         menu.setPosition(0,0);

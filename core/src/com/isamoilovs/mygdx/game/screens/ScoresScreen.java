@@ -107,9 +107,6 @@ public class ScoresScreen extends AbstractScreen{
 
     public void loadTable() {
         parseFile();
-//        for (int i = 0; i < players.size(); i++) {
-//            System.out.println(players.get(i).getName() + " " + players.get(i).getScore());
-//        }
         Skin skin = new Skin();
         Label.LabelStyle labelStyleLines = new Label.LabelStyle(font24, new Color(1.0f, 0.0f, 0.0f, 1.0f));
         Label.LabelStyle labelStyleHeader = new Label.LabelStyle(font24, new Color(1.0f, 1.0f, 1.0f, 1.0f));

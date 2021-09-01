@@ -85,10 +85,6 @@ public class PlayerTank extends Tank{
     }
 
     public void update(float dt) {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)){
-            gameScreen.setPaused(true);
-            ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
-        }
         rectangle.setPosition(position.x - rectangle.getWidth() / 2, position.y - rectangle.getHeight() / 2);
         checkMovement(dt);
         if(!ableToBeDamaged) {

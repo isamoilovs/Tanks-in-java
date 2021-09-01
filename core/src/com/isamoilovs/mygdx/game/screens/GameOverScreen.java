@@ -74,6 +74,14 @@ public class GameOverScreen extends AbstractScreen {
         label.setWidth(400);
         label.setHeight(50);
         final TextButton save = new TextButton("SAVE", textButtonStyle);
+        final TextButton quit = new TextButton("  QUIT WITHOUT SAVING  ", textButtonStyle);
+
+        quit.addListener(new ClickListener() {
+           @Override
+           public void clicked(InputEvent event, float x, float y) {
+               ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
+           }
+        });
 
         save.addListener(new ClickListener() {
             @Override
@@ -93,9 +101,11 @@ public class GameOverScreen extends AbstractScreen {
         save.setPosition(textField.getWidth() + 20, 0.26f * Gdx.graphics.getHeight());
         textField.setPosition(0, 0.26f*Gdx.graphics.getHeight());
         label.setPosition(0, 0.22f*Gdx.graphics.getHeight());
+        quit.setPosition((save.getWidth() + textField.getWidth() - quit.getWidth()) / 2, 0.18f*Gdx.graphics.getHeight());
         gameOverImage.setPosition((save.getWidth() + textField.getWidth() - gameOverImage.getWidth()) / 2, 0.6f*Gdx.graphics.getHeight());
 
         group.addActor(save);
+        group.addActor(quit);
         group.addActor(label);
         group.addActor(textField);
         group.addActor(gameOverImage);
