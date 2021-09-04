@@ -3,6 +3,8 @@ package com.isamoilovs.mygdx.game.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -49,6 +51,8 @@ public class GameScreen extends AbstractScreen {
     private GameType gameType;
     private PerksEmitter perksEmitter;
     private Image frameImage;
+    private Boolean dialogFlag;
+    private Dialog quitGame;
     public void setGameType(GameType gameType) {
         this.gameType = gameType;
     }
@@ -76,29 +80,94 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        atlas = new TextureAtlas("gamePack.pack");
-        cursor = new TextureRegion(atlas.findRegion("cursor"));
-        gameTimer = 0.0f;
-        bulletEmitter = new BulletEmitter(atlas);
-        frameImage = new Image(atlas.findRegion("frame"));
-        mousePosition = new Vector2();
+        this.dialogFlag = false;
+        this.atlas = new TextureAtlas("gamePack.pack");
+        this.cursor = new TextureRegion(atlas.findRegion("cursor"));
+        this.gameTimer = 0.0f;
+        this.bulletEmitter = new BulletEmitter(atlas);
+        this.frameImage = new Image(atlas.findRegion("frame"));
+        this.mousePosition = new Vector2();
         this.worldTimer = 0;
-        map = new Map(atlas);
-        players = new ArrayList<>();
-        players.add(new PlayerTank(1, KeysControl.createStandardControl1(),  this, atlas));
+        this.map = new Map(atlas);
+        this.players = new ArrayList<>();
+        this.players.add(new PlayerTank(1, KeysControl.createStandardControl1(),  this, atlas));
         if(gameType == GameType.TWO_PLAYERS) {
             players.add(new PlayerTank(2, KeysControl.createStandardControl2(), this, atlas));
         }
 
-        botEmitter = new BotEmitter(this, atlas);
-        perksEmitter = new PerksEmitter(this, atlas);
-        stage = new Stage();
-        font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
+        this.botEmitter = new BotEmitter(this, atlas);
+        this.perksEmitter = new PerksEmitter(this, atlas);
+        this.stage = new Stage();
+        this.font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
+        this.quitGame = createDialog();
+
+        this.stage.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if(keycode == Input.Keys.ESCAPE) {
+                    dialogFlag =! dialogFlag;
+                    if (dialogFlag) {
+                        paused = true;
+                        quitGame.show(stage);
+                    } else {
+                        paused = false;
+                        quitGame.hide();
+                    }
+                } else {
+                    return false;
+                }
+                return true;
+            }
+        });
+
         loadButtons();
         Gdx.input.setInputProcessor(stage);
         Gdx.input.setCursorCatched(true);
-        System.out.println(Gdx.graphics.getWidth());
-        System.out.println(Gdx.graphics.getHeight());
+    }
+
+    public Dialog createDialog() {
+        Window.WindowStyle windowStyle = new Window.WindowStyle(font24, Color.GRAY, new RectDrawable(Color.GRAY, 1));
+        TextureRegion buttonDialog = new TextureRegion(atlas.findRegion("simpleButton"));
+        Skin skin = new Skin();
+        skin.add("buttonDialog", buttonDialog);
+        Label.LabelStyle labelStyleHeader = new Label.LabelStyle(font24, new Color(1.0f, 1.0f, 1.0f, 1.0f));
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.getDrawable("buttonDialog");
+        textButtonStyle.font = font24;
+        skin.setScale(1);
+        final TextButton dialogYes = new TextButton("YES", textButtonStyle);
+        final TextButton dialogNo = new TextButton("NO", textButtonStyle);
+        final Dialog quitGame = new Dialog("", windowStyle);
+        final Label label = new Label("Quit the game?", labelStyleHeader);
+        label.setAlignment(Align.center);
+        label.setFontScale(2);
+        quitGame.text(label);
+
+        Pixmap dialog_sbg = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB888);
+        dialog_sbg.setColor(new Color(Color.BLACK.r, Color.BLACK.g, Color.BLACK.b, 1f));
+        dialog_sbg.fill();
+        windowStyle.stageBackground = new Image(new Texture(dialog_sbg)).getDrawable();
+
+        dialogYes.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                paused = false;
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER, players.get(0).getScore());
+            }
+
+        });
+
+        dialogNo.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                paused = false;
+                dialogFlag = false;
+                quitGame.hide();
+            }
+        });
+        quitGame.button(dialogYes);
+        quitGame.button(dialogNo);
+        return quitGame;
     }
 
     @Override
@@ -197,14 +266,10 @@ public class GameScreen extends AbstractScreen {
         final ImageButton pause = new ImageButton(skin.getDrawable("buttonPause"), skin.getDrawable("buttonContinue"), skin.getDrawable("buttonContinue"));
         final ImageButton exit = new ImageButton(skin.getDrawable("buttonExit"));
         final ImageButton menu = new ImageButton(skin.getDrawable("buttonMenu"));
-        final TextButton dialogYes = new TextButton("YES", textButtonStyle);
-        final TextButton dialogNo = new TextButton("NO", textButtonStyle);
-        final Dialog quitGame = new Dialog("", windowStyle);
+        final Dialog quitGame = createDialog();
         final Label label = new Label("Quit the game?", labelStyleHeader);
         label.setAlignment(Align.center);
         label.setFontScale(2);
-        quitGame.text(label);
-
 
         pause.addListener(new ClickListener() {
             @Override
@@ -228,24 +293,6 @@ public class GameScreen extends AbstractScreen {
            }
         });
 
-        dialogYes.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                paused = false;
-                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.GAME_OVER, players.get(0).getScore());
-            }
-        });
-
-        dialogNo.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                paused = false;
-                quitGame.hide();
-            }
-        });
-        quitGame.button(dialogYes);
-        quitGame.button(dialogNo);
-
         int space = (int)pause.getWidth() / 10;
         menu.setPosition(0,0);
         pause.setPosition(space * 11, 0);
@@ -253,7 +300,7 @@ public class GameScreen extends AbstractScreen {
 
         group.addActor(menu);
         group.addActor(pause);
-        group.addActor(exit);
+        //group.addActor(exit);
         stage.addActor(group);
 
         group.setPosition(5, 5);

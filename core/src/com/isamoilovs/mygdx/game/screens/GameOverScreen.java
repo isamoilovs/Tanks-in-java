@@ -2,35 +2,40 @@ package com.isamoilovs.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.Group;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.actions.TouchableAction;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.isamoilovs.mygdx.game.utils.GameType;
 import com.isamoilovs.mygdx.game.utils.RectDrawable;
 
 import java.awt.geom.Rectangle2D;
+import java.security.Key;
 
 public class GameOverScreen extends AbstractScreen {
     private SpriteBatch batch;
     private TextureAtlas atlas;
     private BitmapFont font24;
     private Stage stage;
+    private Boolean dialogFlag;
     private int score;
     private String name;
     private TextField.TextFieldStyle textFieldStyle;
+    private TextField textField;
+    private Label label;
+    private Dialog quitGame;
 
     public void setScore(int score) {
         this.score = score;
@@ -40,13 +45,84 @@ public class GameOverScreen extends AbstractScreen {
         this.batch = batch;
     }
 
+    public Dialog createDialog() {
+        Window.WindowStyle windowStyle = new Window.WindowStyle(font24, Color.GRAY, new RectDrawable(Color.GRAY, 1));
+        TextureRegion buttonDialog = new TextureRegion(atlas.findRegion("simpleButton"));
+        Skin skin = new Skin();
+        skin.add("buttonDialog", buttonDialog);
+        Label.LabelStyle labelStyleHeader = new Label.LabelStyle(font24, new Color(1.0f, 1.0f, 1.0f, 1.0f));
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.getDrawable("buttonDialog");
+        textButtonStyle.font = font24;
+        skin.setScale(1);
+        final TextButton dialogYes = new TextButton("YES", textButtonStyle);
+        final TextButton dialogNo = new TextButton("NO", textButtonStyle);
+        final Dialog quitGame = new Dialog("", windowStyle);
+        final Label label = new Label("Quit without saving?", labelStyleHeader);
+        label.setAlignment(Align.center);
+        label.setFontScale(2);
+        quitGame.text(label);
+
+        Pixmap dialog_sbg = new Pixmap(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), Pixmap.Format.RGB888);
+        dialog_sbg.setColor(new Color(Color.BLACK.r, Color.BLACK.g, Color.BLACK.b, 1f));
+        dialog_sbg.fill();
+        windowStyle.stageBackground = new Image(new Texture(dialog_sbg)).getDrawable();
+
+        dialogYes.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
+                dialogFlag = false;
+            }
+
+        });
+        dialogNo.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                dialogFlag = false;
+            }
+        });
+
+        quitGame.button(dialogYes);
+        quitGame.button(dialogNo);
+        return quitGame;
+    }
+
     @Override
     public void show() {
+        dialogFlag = false;
         atlas = new TextureAtlas("gamePack.pack");
         font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
         stage = new Stage();
-        name = new String();
+        quitGame = createDialog();
 
+        stage.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if(keycode == Input.Keys.ENTER && !dialogFlag) {
+                    System.out.println("ENTER!!!");
+                    saveAction();
+                } else if(keycode == Input.Keys.ESCAPE) {
+                    dialogFlag =! dialogFlag;
+                    if (dialogFlag) {
+                        quitGame.show(stage);
+                    } else {
+                        quitGame.hide();
+                    }
+                } else {
+                    return false;
+                }
+                return true;
+            }
+        });
+
+
+        name = new String();
+        loadButtons();
+        Gdx.input.setInputProcessor(stage);
+    }
+
+    public void loadButtons() {
         Skin skin = new Skin();
         skin.add("simpleButton", new TextureRegion(atlas.findRegion("simpleButton")));
         skin.add("gameOverImage", new TextureRegion(atlas.findRegion("gameOver")));
@@ -58,11 +134,12 @@ public class GameOverScreen extends AbstractScreen {
         textFieldStyle.messageFontColor = Color.WHITE;
         textFieldStyle.cursor = new TextureRegionDrawable(atlas.findRegion("cursorTextField"));
         textFieldStyle.fontColor = new Color(1, 1, 1, 1);
+
+        textField = new TextField("", textFieldStyle);
+
         textButtonStyle.up = skin.getDrawable("simpleButton");
         textButtonStyle.font = font24;
         Image gameOverImage = new Image(skin.getDrawable("gameOverImage"));
-
-        final TextField textField = new TextField("", textFieldStyle);
         textField.setMessageText("Enter Your Name...");
         textField.setSize(500, 40);
         textField.setMaxLength(10);
@@ -70,31 +147,23 @@ public class GameOverScreen extends AbstractScreen {
         group.setWidth(500);
         group.setHeight(500);
         Label.LabelStyle labelStyle = new Label.LabelStyle(font24, new Color(1.0f, 0.0f, 0.0f, 1.0f));
-        final Label label = new Label("", labelStyle);
+        label = new Label("", labelStyle);
         label.setWidth(400);
         label.setHeight(50);
         final TextButton save = new TextButton("SAVE", textButtonStyle);
         final TextButton quit = new TextButton("  QUIT WITHOUT SAVING  ", textButtonStyle);
 
         quit.addListener(new ClickListener() {
-           @Override
-           public void clicked(InputEvent event, float x, float y) {
-               ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
-           }
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
+            }
         });
 
         save.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                System.out.println(textField.getText().toString().length());
-                if(textField.getText().toString().length() == 0) {
-                    label.setPosition(0, 0.20f*Gdx.graphics.getHeight());
-                    label.setText("ENTER YOUR NAME!!!");
-                } else {
-                    FileHandle file = Gdx.files.local("scores.txt");
-                    file.writeString(textField.getText().toString() + " " + score + "\n", true);
-                    ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
-                }
+                saveAction();
             }
         });
 
@@ -111,7 +180,17 @@ public class GameOverScreen extends AbstractScreen {
         group.addActor(gameOverImage);
         group.setPosition((Gdx.graphics.getWidth() - save.getWidth() - textField.getWidth()) / 2, 0);
         stage.addActor(group);
-        Gdx.input.setInputProcessor(stage);
+    }
+
+    public void saveAction() {
+        if(textField.getText().toString().length() == 0) {
+            label.setPosition(0, 0.20f*Gdx.graphics.getHeight());
+            label.setText("ENTER YOUR NAME!!!");
+        } else {
+            FileHandle file = Gdx.files.local("scores.txt");
+            file.writeString(textField.getText().toString() + " " + score + "\n", true);
+            ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
+        }
     }
 
     @Override

@@ -1,6 +1,9 @@
 package com.isamoilovs.mygdx.game.screens;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -9,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -34,9 +38,24 @@ public class ScoresScreen extends AbstractScreen{
     }
 
 
+
     @Override
     public void show() {
+        atlas = new TextureAtlas("gamePack.pack");
+        font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
+        stage = new Stage();
         loadButtons();
+        stage.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {if(keycode == Input.Keys.ESCAPE) {
+                    ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
         if(file.readString().length() > 0) {
             loadTable();
         }
@@ -55,7 +74,7 @@ public class ScoresScreen extends AbstractScreen{
 
         while (indexOfSpace != -1){
             String nameOfCurrentPlayer = tmpStr.substring(0, indexOfSpace);
-            int scoreOfCurrentPlayer = Integer.parseInt(tmpStr.substring(indexOfSpace + 1));
+            Integer scoreOfCurrentPlayer = Integer.parseInt(tmpStr.substring(indexOfSpace + 1));
             if(players.size() > 0) {
                 for (int i = 0; i < players.size(); i++) {
                     if ((players.get(i).getName().equals(nameOfCurrentPlayer)) && (players.get(i).getScore() < scoreOfCurrentPlayer)){
@@ -106,7 +125,11 @@ public class ScoresScreen extends AbstractScreen{
     }
 
     public void loadTable() {
-        parseFile();
+        if (file.readString().length() > 0) {
+            parseFile();
+        } else {
+            players.clear();
+        }
         Skin skin = new Skin();
         Label.LabelStyle labelStyleLines = new Label.LabelStyle(font24, new Color(1.0f, 0.0f, 0.0f, 1.0f));
         Label.LabelStyle labelStyleHeader = new Label.LabelStyle(font24, new Color(1.0f, 1.0f, 1.0f, 1.0f));
@@ -138,13 +161,12 @@ public class ScoresScreen extends AbstractScreen{
     }
 
     public void loadButtons() {
-        atlas = new TextureAtlas("gamePack.pack");
-        font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
-        stage = new Stage();
-
         Skin skin = new Skin();
         TextureRegion buttonMenu = new TextureRegion(atlas.findRegion("buttons").split(50, 50)[0][0]);
+        TextureRegion buttonClear = new TextureRegion(atlas.findRegion("simpleButton"));
+
         skin.add("buttonMenu", buttonMenu);
+        skin.add("buttonClear", buttonClear);
         skin.setScale(1);
 
         final ImageButton menu = new ImageButton(skin.getDrawable("buttonMenu"));
@@ -154,8 +176,29 @@ public class ScoresScreen extends AbstractScreen{
                 ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
             }
         });
-        menu.setPosition(5,5);
-        stage.addActor(menu);
+
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.getDrawable("buttonClear");
+        textButtonStyle.font = font24;
+
+        final TextButton clear = new TextButton("Clear", textButtonStyle);
+        clear.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                file.writeString("", false);
+                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.SCORES);
+            }
+        });
+
+        Group group = new Group();
+
+        menu.setPosition(0,0);
+        clear.setPosition(menu.getWidth() + 5, 0);
+        group.addActor(menu);
+        group.addActor(clear);
+        group.setPosition(5, 5);
+
+        stage.addActor(group);
     }
 
     @Override
