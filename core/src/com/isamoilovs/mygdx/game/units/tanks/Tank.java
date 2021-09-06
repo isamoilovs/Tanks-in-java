@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.isamoilovs.mygdx.game.screens.GameScreen;
 import com.isamoilovs.mygdx.game.units.weapon.Weapon;
+import com.isamoilovs.mygdx.game.utils.Animation;
 import com.isamoilovs.mygdx.game.utils.Direction;
 import com.isamoilovs.mygdx.game.utils.GameConsts;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
@@ -32,12 +33,14 @@ public abstract class Tank {
     int hpMax;
     int currentFrame;
     float currentFrameTime;
+    float fireTimer;
 
     public Boolean isDestroyed() {
         return hasBeenDestroyed;
     }
 
     public Tank(GameScreen gameScreen, TextureAtlas atlas) {
+        this.fireTimer = 0.0f;
         this.preferredDirection = Direction.UP;
         this.deathTimer = 0.0f;
         this.timeToAnimate = 0.3f;
@@ -90,7 +93,6 @@ public abstract class Tank {
     }
 
     public void updateTankExplosion(float dt) {
-        System.out.println(hasBeenDestroyed + " " + deathTimer);
         if(hasBeenDestroyed) {
             deathTimer += dt;
             tankDeathAnimation.update(dt);
@@ -108,7 +110,7 @@ public abstract class Tank {
 
 
     public Direction getPreferredDirection() {
-        return preferredDirection;
+        return this.preferredDirection;
     }
 
 

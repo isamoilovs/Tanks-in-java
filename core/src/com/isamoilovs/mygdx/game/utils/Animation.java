@@ -1,4 +1,4 @@
-package com.isamoilovs.mygdx.game.units.tanks;
+package com.isamoilovs.mygdx.game.utils;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;

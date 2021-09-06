@@ -12,7 +12,7 @@ import com.isamoilovs.mygdx.game.utils.GameConsts;
 
 public class BotEmitter {
     private BotTank[] bots;
-    public static final int MAX_BOTS_COUNT = 30;
+    public static final int MAX_BOTS_COUNT = 1;
 
     public BotTank[] getBots() {
         return bots;
@@ -38,7 +38,7 @@ public class BotEmitter {
 
 
         for(int i = 0; i < bots.length; i++) {
-            if(!bots[i].isActive() && !bots[i].isDestroyed()) {
+            if(!bots[i].isActive() && !bots[i].isDestroyed() && !bots[i].hadBeenActivated()) {
                 bots[i].activate(cordX, cordY);
                 break;
             }
@@ -47,20 +47,24 @@ public class BotEmitter {
 
     public void render(SpriteBatch batch) {
         for(int i = 0; i < bots.length; i++) {
-            if(bots[i].isActive()) {
+            if(bots[i].isActive() && !bots[i].hadBeenActivated() && !bots[i].isDestroyed()) {
                 bots[i].render(batch);
-            } else if (bots[i].isDestroyed()) {
+            } else if (bots[i].isDestroyed() && !bots[i].hadBeenActivated()) {
                 bots[i].renderTankExplosion(batch);
+            } else if (bots[i].hadBeenActivated()) {
+                bots[i].renderSpawn(batch);
             }
         }
     }
 
     public void update(float dt) {
         for(int i = 0; i < bots.length; i++) {
-            if(bots[i].isActive()) {
+            if(bots[i].isActive() && !bots[i].hadBeenActivated() && !bots[i].isDestroyed()) {
                 bots[i].update(dt);
-            } else if (bots[i].isDestroyed()) {
+            } else if (bots[i].isDestroyed() && !bots[i].hadBeenActivated()) {
                 bots[i].updateTankExplosion(dt);
+            } else if (bots[i].hadBeenActivated()) {
+                bots[i].updateSpawn(dt);
             }
         }
     }

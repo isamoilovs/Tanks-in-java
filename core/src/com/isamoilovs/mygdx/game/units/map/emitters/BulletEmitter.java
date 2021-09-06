@@ -61,6 +61,21 @@ public class BulletEmitter {
         }
     }
 
+    public void checkBulletCollisions() {
+        for (int i = 0; i < bullets.length; i++) {
+            for (int j = bullets.length - 1; j > i ; j--) {
+                if(bullets[i].isActive()
+                        && bullets[j].isActive()
+                        && (bullets[i].getBulletRectangle().overlaps(bullets[j].getBulletRectangle()))
+                        || bullets[i].getBulletRectangle().contains(bullets[j].getBulletRectangle())) {
+                    bullets[i].disActivate();
+                    bullets[j].disActivate();
+                    break;
+                }
+            }
+        }
+    }
+
     public void checkTankAndBulletCollisions(BotTank[] bots, List<PlayerTank> players, boolean friendlyFire) {
         for (int i = 0; i < bullets.length; i++) {
             Bullet bullet = bullets[i];

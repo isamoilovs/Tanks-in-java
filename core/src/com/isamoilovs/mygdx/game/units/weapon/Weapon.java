@@ -46,11 +46,11 @@ public class Weapon {
     }
 
 
-    public Weapon(TextureAtlas atlas) {
+    public Weapon(TextureAtlas atlas, float firePeriod, float bulletSpeed) {
         this.texture = atlas.findRegion("cannon");
-        this.firePeriod = 0.5f;
+        this.firePeriod = firePeriod;
         this.damage = 1;
-        this.bulletSpeed = 500.0f;
+        this.bulletSpeed = 1000.0f;
         this.radius = 500.0f;
         this.bulletLifetime = radius / bulletSpeed;
     }

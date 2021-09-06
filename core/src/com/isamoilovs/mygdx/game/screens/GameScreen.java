@@ -214,10 +214,13 @@ public class GameScreen extends AbstractScreen {
 
         if(!paused) {
             gameTimer += dt;
-            if (gameTimer >= 3.0f) {
+            if (gameTimer >= 10.0f) {
                 gameTimer = 0;
-                botEmitter.activate(map);
                 perksEmitter.activate(map);
+            }
+
+            if ((int)gameTimer % 3 >= 1) {
+                botEmitter.activate(map);
             }
 
             for (int i = 0; i < players.size(); i++) {
@@ -238,6 +241,7 @@ public class GameScreen extends AbstractScreen {
         bulletEmitter.checkTankAndBulletCollisions(botEmitter.getBots(), players, FRIENDLY_FIRE);
         map.checkWallsAndBulletsCollisionsNew(bulletEmitter);
         map.getEagle().checkEagleAndBulletCollisions(bulletEmitter);
+        bulletEmitter.checkBulletCollisions();
     }
 
     public void loadButtons() {

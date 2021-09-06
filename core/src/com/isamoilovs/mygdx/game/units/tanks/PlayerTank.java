@@ -36,7 +36,7 @@ public class PlayerTank extends Tank{
         this.ownerType = TankOwner.PLAYER;
         this.speed = 160.0f;
         this.preferredDirection = Direction.UP;
-        this.weapon = new Weapon(atlas);
+        this.weapon = new Weapon(atlas, 0.2f, 1000);
         this.hpMax = 10;
         this.hp = hpMax;
         this.lives = 3;
@@ -90,6 +90,7 @@ public class PlayerTank extends Tank{
     }
 
     public void update(float dt) {
+        fireTimer += dt;
         updateTankExplosion(dt);
         rectangle.setPosition(position.x - rectangle.getWidth() / 2, position.y - rectangle.getHeight() / 2);
         checkMovement(dt);
@@ -101,7 +102,10 @@ public class PlayerTank extends Tank{
             currentShieldTimer = 0;
         }
         if(active && Gdx.input.isKeyJustPressed(keysControl.getFire())) {
-            fire();
+            if(fireTimer >= weapon.getFirePeriod()) {
+                fire();
+                fireTimer = 0;
+            }
         }
     }
 

@@ -45,8 +45,6 @@ public class Map {
             this.type = type;
             this.hp = type.maxHP;
             this.rectangle = new Rectangle(x, y, GameConsts.MAP_DEFAULT_CELL_SIZE, GameConsts.MAP_DEFAULT_CELL_SIZE);
-            System.out.println("x = " + x + " y = " + y);
-            System.out.println(GameConsts.MAP_DEFAULT_DX + " " + GameConsts.MAP_DEFAULT_DY);
         }
 
         public void damage() {
@@ -127,23 +125,6 @@ public class Map {
             }
         }
         eagle.render(batch);
-    }
-
-    public void checkWallsAndBulletsCollisions(BulletEmitter bulletEmitter) {
-        for (int i = 0; i < bulletEmitter.getBullets().length; i++) {
-            Bullet bullet = bulletEmitter.getBullets()[i];
-            if(bullet.isActive()) {
-                int cx = (int) ((bullet.getPosition().x - GameConsts.MAP_DEFAULT_DX) / GameConsts.MAP_DEFAULT_CELL_SIZE);
-                int cy = (int) ((bullet.getPosition().y - GameConsts.MAP_DEFAULT_DY) / GameConsts.MAP_DEFAULT_CELL_SIZE);
-
-                if(cx >= 0 && cy >= 0 && cx < GameConsts.MAP_SIZE_CX && cy < GameConsts.MAP_SIZE_CY) {
-                    if(!cells[cx][cy].type.bulletPassable) {
-                        cells[cx][cy].damage();
-                        bullet.disActivate();
-                    }
-                }
-            }
-        }
     }
 
     public void checkWallsAndBulletsCollisionsNew(BulletEmitter bulletEmitter) {
