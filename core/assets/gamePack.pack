@@ -24,23 +24,30 @@ perks
   orig: 256, 64
   offset: 0, 0
   index: -1
-buttons
+simpleButton1
   rotate: false
   xy: 0, 515
   size: 200, 50
   orig: 200, 50
   offset: 0, 0
   index: -1
-window
+buttons
   rotate: false
   xy: 0, 565
+  size: 200, 50
+  orig: 200, 50
+  offset: 0, 0
+  index: -1
+window
+  rotate: false
+  xy: 0, 615
   size: 200, 40
   orig: 200, 40
   offset: 0, 0
   index: -1
 simpleButton
   rotate: false
-  xy: 0, 605
+  xy: 0, 655
   size: 200, 40
   orig: 200, 40
   offset: 0, 0
@@ -52,44 +59,86 @@ walls
   orig: 24, 40
   offset: 0, 0
   index: -1
-cursor
+explosionOfTank32
   rotate: false
   xy: 916, 0
+  size: 64, 32
+  orig: 64, 32
+  offset: 0, 0
+  index: -1
+cursor
+  rotate: false
+  xy: 980, 0
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 cannon
   rotate: false
-  xy: 948, 0
+  xy: 892, 40
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
   index: -1
 playerTankLvl1
   rotate: false
-  xy: 892, 40
+  xy: 892, 72
   size: 128, 16
   orig: 128, 16
   offset: 0, 0
   index: -1
+botTankLvl1
+  rotate: false
+  xy: 892, 88
+  size: 128, 16
+  orig: 128, 16
+  offset: 0, 0
+  index: -1
+perks16
+  rotate: false
+  xy: 892, 104
+  size: 112, 16
+  orig: 112, 16
+  offset: 0, 0
+  index: -1
+newTank
+  rotate: false
+  xy: 924, 40
+  size: 64, 16
+  orig: 64, 16
+  offset: 0, 0
+  index: -1
+explosionOfbullet16
+  rotate: false
+  xy: 924, 56
+  size: 48, 16
+  orig: 48, 16
+  offset: 0, 0
+  index: -1
+shield16
+  rotate: false
+  xy: 988, 40
+  size: 32, 16
+  orig: 32, 16
+  offset: 0, 0
+  index: -1
 earth
   rotate: false
-  xy: 980, 0
+  xy: 972, 56
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 eagle
   rotate: false
-  xy: 980, 16
+  xy: 988, 56
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
   index: -1
 bullet
   rotate: false
-  xy: 996, 0
+  xy: 1004, 56
   size: 16, 16
   orig: 16, 16
   offset: 0, 0
@@ -104,6 +153,13 @@ cursorTextField
 hp
   rotate: false
   xy: 916, 32
+  size: 32, 8
+  orig: 32, 8
+  offset: 0, 0
+  index: -1
+bullets8
+  rotate: false
+  xy: 948, 32
   size: 32, 8
   orig: 32, 8
   offset: 0, 0

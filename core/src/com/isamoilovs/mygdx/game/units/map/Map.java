@@ -6,12 +6,16 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.isamoilovs.mygdx.game.units.map.emitters.BulletEmitter;
+import com.isamoilovs.mygdx.game.units.tanks.BotTank;
+import com.isamoilovs.mygdx.game.units.tanks.PlayerTank;
 import com.isamoilovs.mygdx.game.units.weapon.Bullet;
 import com.isamoilovs.mygdx.game.utils.GameConsts;
 
+import java.util.List;
+
 public class Map {
     public enum WallType {
-        STONE_WALL(1, 0, true, false, false),
+        STONE_WALL(1, 0, false, false, false),
         BRICK_WALL(1, 2, true, false, false),
         OBSIDIAN(1, 1, false, false, false),
         WATER(1, 3, true, false, true),
@@ -41,6 +45,8 @@ public class Map {
             this.type = type;
             this.hp = type.maxHP;
             this.rectangle = new Rectangle(x, y, GameConsts.MAP_DEFAULT_CELL_SIZE, GameConsts.MAP_DEFAULT_CELL_SIZE);
+            System.out.println("x = " + x + " y = " + y);
+            System.out.println(GameConsts.MAP_DEFAULT_DX + " " + GameConsts.MAP_DEFAULT_DY);
         }
 
         public void damage() {
@@ -89,22 +95,14 @@ public class Map {
                 int cy = (int) (j / 4);
                 if(cy % 2 ==0 && cx % 2 ==0) {
                     if(MathUtils.random() < 0.8f) {
-                        this.cells[i][j].changeType(WallType.WATER);
+                        this.cells[i][j].changeType(WallType.BRICK_WALL);
                     } else {
                         this.cells[i][j].changeType(WallType.STONE_WALL);
                     }
                 }
             }
         }
-        eagle.setPosition(GameConsts.MAP_DEFAULT_DX +GameConsts.MAP_WIDTH /2, eagle.getCircle().radius + GameConsts.MAP_DEFAULT_DY);
-//        for (int i = 0; i < GameConsts.MAP_SIZE_CX; i++) {
-//            this.cells[i][0].changeType(WallType.OBSIDIAN);
-//            this.cells[i][GameConsts.MAP_SIZE_CY - 1].changeType(WallType.OBSIDIAN);
-//        }
-//        for (int i = 0; i < GameConsts.MAP_SIZE_CY; i++) {
-//            this.cells[0][i].changeType(WallType.OBSIDIAN);
-//            this.cells[GameConsts.MAP_SIZE_CX - 1][i].changeType(WallType.OBSIDIAN);
-//        }
+        eagle.setPosition(GameConsts.MAP_DEFAULT_DX +GameConsts.MAP_WIDTH /2, GameConsts.MAP_DEFAULT_DY + eagle.getRectangle().getWidth()/2);
     }
 
     public void render(SpriteBatch batch) {
@@ -142,6 +140,25 @@ public class Map {
                     if(!cells[cx][cy].type.bulletPassable) {
                         cells[cx][cy].damage();
                         bullet.disActivate();
+                    }
+                }
+            }
+        }
+    }
+
+    public void checkWallsAndBulletsCollisionsNew(BulletEmitter bulletEmitter) {
+        Bullet[] bullets;
+        bullets = bulletEmitter.getBullets();
+
+        for(int i = 0; i < bullets.length; i++) {
+            Bullet bullet = bullets[i];
+            if (bullet.isActive()) {
+                for (int j = 0; j < GameConsts.MAP_SIZE_CX; j++) {
+                    for (int k = 0; k < GameConsts.MAP_SIZE_CY; k++) {
+                        if((bullets[i].getBulletRectangle().overlaps(cells[j][k].rectangle) || cells[j][k].rectangle.contains(bullets[i].getBulletRectangle())) && !cells[j][k].type.bulletPassable){
+                            cells[j][k].damage();
+                            bullets[i].disActivate();
+                        }
                     }
                 }
             }

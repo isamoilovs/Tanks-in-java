@@ -24,6 +24,7 @@ public class BotTank extends Tank {
     float dst;
 
     public void render(SpriteBatch batch) {
+
         batch.draw(texture[0][preferredDirection.getIndex() + currentFrame],
                 position.x - GameConsts.TANK_WIDTH / 2,
                 position.y - GameConsts.TANK_HEIGHT / 2, GameConsts.TANK_WIDTH, GameConsts.TANK_HEIGHT);
@@ -38,22 +39,27 @@ public class BotTank extends Tank {
     }
 
     public void activate(float x, float y) {
-        active = true;
-        this.hp = hpMax;
-        position.set(x, y);
-        rectangle.setPosition(x - rectangle.getWidth()/2, y- rectangle.getHeight()/2);
-        aiTimer = 0.0f;
-        preferredDirection = Direction.values()[MathUtils.random(0, Direction.values().length - 1)];
+        if(!hasBeenDestroyed) {
+            active = true;
+            this.hp = hpMax;
+            isAbleToMove = true;
+            hasBeenDestroyed = false;
+            position.set(x, y);
+            rectangle.setPosition(x - rectangle.getWidth() / 2, y - rectangle.getHeight() / 2);
+            aiTimer = 0.0f;
+            preferredDirection = Direction.values()[MathUtils.random(0, Direction.values().length - 1)];
+        }
     }
 
     public BotTank(GameScreen gameScreen, TextureAtlas atlas) {
         super(gameScreen, atlas);
-        this.texture = atlas.findRegion("playerTankLvl1").split(GameConsts.TANK_TEXTURE_RESOLUTION, GameConsts.TANK_TEXTURE_RESOLUTION);
+        this.preferredDirection = Direction.UP;
+        this.texture = atlas.findRegion("botTankLvl1").split(GameConsts.TANK_TEXTURE_RESOLUTION, GameConsts.TANK_TEXTURE_RESOLUTION);
         this.active = false;
         this.speed = 100.0f;
         this.weapon = new Weapon(atlas);
         this.lastPosition = new Vector3(0.0f, 0.0f, 0.0f);
-        this.hpMax = 5;
+        this.hpMax = 3;
         this.pursuitRadius = 500.0f;
         this.hp = hpMax;
         this.aiTimerTo = 3.0f;
@@ -70,7 +76,6 @@ public class BotTank extends Tank {
     public void update(float dt) {
         fireTimer+=dt;
         aiTimer += dt;
-        fireTimer += dt;
         checkMovement(dt);
         rectangle.setPosition(position.x - rectangle.getWidth() / 2, position.y - rectangle.getHeight() / 2);
 
@@ -81,14 +86,14 @@ public class BotTank extends Tank {
 //            dst = this.position.dst(gameScreen.getMap().getEagle().getPosition());
 //            if (dst < minDst) {
 //                minDst = dst;
-//                preferredTarget = gameScreen.getMap().getEagle().getCircle();
+//                preferredTarget = gameScreen.getMap().getEagle().getRectangle();
 //            }
 //            for (int i = 0; i < gameScreen.getPlayers().size(); i++) {
 //                PlayerTank player = gameScreen.getPlayers().get(i);
 //                dst = this.position.dst(player.getPosition());
 //                if (dst < minDst) {
 //                    minDst = dst;
-//                    preferredTarget = player.getCircle();
+//                    preferredTarget = player.getRectangle();
 //                }
 //            }
 //            dst = position.dst2(preferredTarget.x, preferredTarget.y);
@@ -96,8 +101,8 @@ public class BotTank extends Tank {
 //            System.out.println("MY X: " + position.x + "; MY Y: " + position.y);
 //        } else if(dst <= pursuitRadius && currentTimeOfHunt <= timeOfHunt && preferredTarget != null) {
 //            currentTimeOfHunt += dt;
-//            if(position.x >= preferredTarget.x - preferredTarget.radius
-//                    && position.x <= preferredTarget.x + preferredTarget.radius) {
+//            if(position.x >= preferredTarget.x - preferredTarget.getWidth()
+//                    && position.x <= preferredTarget.x + preferredTarget.getWidth()) {
 //                if(preferredTarget.y - position.y >= 0) {
 //                    preferredDirection = Direction.UP;
 //                } else {
@@ -107,8 +112,8 @@ public class BotTank extends Tank {
 //                    fire();
 //                    fireTimer = 0;
 //                }
-//            } else if(position.y >= preferredTarget.y - preferredTarget.radius
-//                    && position.y <= preferredTarget.y + preferredTarget.radius) {
+//            } else if(position.y >= preferredTarget.y - preferredTarget.getWidth()
+//                    && position.y <= preferredTarget.y + preferredTarget.getWidth()) {
 //                if(preferredTarget.x - position.x >= 0) {
 //                    preferredDirection = Direction.RIGHT;
 //                } else {
@@ -118,13 +123,13 @@ public class BotTank extends Tank {
 //                    fire();
 //                    fireTimer = 0;
 //                }
-//            } else if(position.x < preferredTarget.x - preferredTarget.radius) {
+//            } else if(position.x < preferredTarget.x - preferredTarget.getWidth()) {
 //                preferredDirection = Direction.RIGHT;
-//            } else if(position.x > preferredTarget.x + preferredTarget.radius) {
+//            } else if(position.x > preferredTarget.x + preferredTarget.getWidth()) {
 //                preferredDirection = Direction.LEFT;
-//            } else if(position.y < preferredTarget.y - preferredTarget.radius) {
+//            } else if(position.y < preferredTarget.y - preferredTarget.getWidth()) {
 //                preferredDirection = Direction.UP;
-//            } else if(position.y > preferredTarget.y + preferredTarget.radius) {
+//            } else if(position.y > preferredTarget.y + preferredTarget.getWidth()) {
 //                preferredDirection = Direction.DOWN;
 //            }
 //
@@ -152,13 +157,15 @@ public class BotTank extends Tank {
     }
 
     public void fire() {
-        double angle = Math.toRadians(preferredDirection.getAngle());
-        gameScreen.getBulletEmitter().activate(this,
-                position.x + MathUtils.cos((float)angle)*GameConsts.TANK_WIDTH/2,
-                position.y + MathUtils.sin((float)angle)*GameConsts.TANK_WIDTH/2,
-                weapon.getBulletSpeed() * preferredDirection.getVx(),
-                weapon.getBulletSpeed() * preferredDirection.getVy(),
-                weapon.getDamage(), weapon.getBulletLifetime());
+        if(isAbleToMove) {
+            double angle = Math.toRadians(preferredDirection.getAngle());
+            gameScreen.getBulletEmitter().activate(this,
+                    position.x + MathUtils.cos((float) angle) * GameConsts.TANK_WIDTH / 2,
+                    position.y + MathUtils.sin((float) angle) * GameConsts.TANK_WIDTH / 2,
+                    weapon.getBulletSpeed() * preferredDirection.getVx(),
+                    weapon.getBulletSpeed() * preferredDirection.getVy(),
+                    weapon.getDamage(), weapon.getBulletLifetime());
+        }
     }
 
     public void takeDamage(int damage, Tank playerTank) {
@@ -170,6 +177,7 @@ public class BotTank extends Tank {
     }
 
     public void destroy(){
+        hasBeenDestroyed = true;
         active = false;
     }
 

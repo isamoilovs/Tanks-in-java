@@ -50,7 +50,6 @@ public class GameScreen extends AbstractScreen {
     float worldTimer;
     private GameType gameType;
     private PerksEmitter perksEmitter;
-    private Image frameImage;
     private Boolean dialogFlag;
     private Dialog quitGame;
     public void setGameType(GameType gameType) {
@@ -85,7 +84,6 @@ public class GameScreen extends AbstractScreen {
         this.cursor = new TextureRegion(atlas.findRegion("cursor"));
         this.gameTimer = 0.0f;
         this.bulletEmitter = new BulletEmitter(atlas);
-        this.frameImage = new Image(atlas.findRegion("frame"));
         this.mousePosition = new Vector2();
         this.worldTimer = 0;
         this.map = new Map(atlas);
@@ -138,7 +136,7 @@ public class GameScreen extends AbstractScreen {
         final TextButton dialogYes = new TextButton("YES", textButtonStyle);
         final TextButton dialogNo = new TextButton("NO", textButtonStyle);
         final Dialog quitGame = new Dialog("", windowStyle);
-        final Label label = new Label("Quit the game?", labelStyleHeader);
+        final Label label = new Label("Go to menu?", labelStyleHeader);
         label.setAlignment(Align.center);
         label.setFontScale(2);
         quitGame.text(label);
@@ -238,7 +236,8 @@ public class GameScreen extends AbstractScreen {
     public void checkCollisions() {
         perksEmitter.checkPerkAndPlayerCollision(getPlayers());
         bulletEmitter.checkTankAndBulletCollisions(botEmitter.getBots(), players, FRIENDLY_FIRE);
-        map.checkWallsAndBulletsCollisions(bulletEmitter);
+        map.checkWallsAndBulletsCollisionsNew(bulletEmitter);
+        map.getEagle().checkEagleAndBulletCollisions(bulletEmitter);
     }
 
     public void loadButtons() {
@@ -247,6 +246,7 @@ public class GameScreen extends AbstractScreen {
         TextureRegion buttonContinue = new TextureRegion(atlas.findRegion("buttons").split(50, 50)[0][2]);
         TextureRegion buttonExit = new TextureRegion(atlas.findRegion("buttons").split(50, 50)[0][3]);
         TextureRegion buttonDialog = new TextureRegion(atlas.findRegion("simpleButton"));
+        TextureRegion buttonTip = new TextureRegion(atlas.findRegion("simpleButton1"));
 
         Skin skin = new Skin();
         skin.add("buttonPause", buttonPause);
@@ -254,18 +254,26 @@ public class GameScreen extends AbstractScreen {
         skin.add("buttonExit", buttonExit);
         skin.add("buttonMenu", buttonMenu);
         skin.add("buttonDialog", buttonDialog);
+        skin.add("buttonTip", buttonTip);
 
         Window.WindowStyle windowStyle = new Window.WindowStyle(font24, Color.WHITE, new RectDrawable(Color.GRAY, 1));
         Label.LabelStyle labelStyleHeader = new Label.LabelStyle(font24, new Color(1.0f, 1.0f, 1.0f, 1.0f));
-        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.getDrawable("buttonDialog");
-        textButtonStyle.font = font24;
+        TextButton.TextButtonStyle styleOfDialogButtons = new TextButton.TextButtonStyle();
+        TextButton.TextButtonStyle styleOfTipButton = new TextButton.TextButtonStyle();
+
+        styleOfDialogButtons.up = skin.getDrawable("buttonDialog");
+        styleOfDialogButtons.font = font24;
+
+        styleOfTipButton.up = skin.getDrawable("buttonTip");
+        styleOfTipButton.font = font24;
+
         skin.setScale(1);
 
         Group group = new Group();
         final ImageButton pause = new ImageButton(skin.getDrawable("buttonPause"), skin.getDrawable("buttonContinue"), skin.getDrawable("buttonContinue"));
         final ImageButton exit = new ImageButton(skin.getDrawable("buttonExit"));
         final ImageButton menu = new ImageButton(skin.getDrawable("buttonMenu"));
+        final TextButton showTips = new TextButton(" Show tips ", styleOfTipButton);
         final Dialog quitGame = createDialog();
         final Label label = new Label("Quit the game?", labelStyleHeader);
         label.setAlignment(Align.center);
@@ -293,14 +301,29 @@ public class GameScreen extends AbstractScreen {
            }
         });
 
+        showTips.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                switch (showTips.getText().toString()) {
+                    case " Show tips " :
+                        showTips.setText(" Hide tips ");
+                        break;
+                    default :
+                        showTips.setText(" Show tips ");
+                }
+            }
+        });
+
         int space = (int)pause.getWidth() / 10;
         menu.setPosition(0,0);
         pause.setPosition(space * 11, 0);
         exit.setPosition(space * 22, 0);
+        showTips.setPosition(space * 22, 0);
 
         group.addActor(menu);
         group.addActor(pause);
         //group.addActor(exit);
+        group.addActor(showTips);
         stage.addActor(group);
 
         group.setPosition(5, 5);

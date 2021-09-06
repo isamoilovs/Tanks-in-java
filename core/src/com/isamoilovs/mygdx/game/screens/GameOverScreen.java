@@ -156,7 +156,7 @@ public class GameOverScreen extends AbstractScreen {
         quit.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                ScreenManager.getInstance().setScreen(ScreenManager.ScreenType.MENU);
+                quitGame.show(stage);
             }
         });
 

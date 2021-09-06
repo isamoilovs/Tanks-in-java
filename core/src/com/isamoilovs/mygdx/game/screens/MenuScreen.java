@@ -139,7 +139,7 @@ public class MenuScreen extends AbstractScreen {
         exitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit();
+                quitGame.show(stage);
             }
         });
         scoresButton.addListener(new ClickListener() {

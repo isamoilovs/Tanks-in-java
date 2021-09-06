@@ -18,9 +18,9 @@ import com.isamoilovs.mygdx.game.utils.KeysControl;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
 
 public class PlayerTank extends Tank{
+    int lives;
     KeysControl keysControl;
     int index;
-    int lives;
     int score;
     float shieldTime;
     float currentShieldTimer;
@@ -39,7 +39,7 @@ public class PlayerTank extends Tank{
         this.weapon = new Weapon(atlas);
         this.hpMax = 10;
         this.hp = hpMax;
-        this.lives = 1;
+        this.lives = 3;
         this.active = true;
         this.tmpString = new StringBuilder();
         this.ableToBeDamaged = true;
@@ -59,7 +59,10 @@ public class PlayerTank extends Tank{
      }
 
     public void render(SpriteBatch batch) {
-        if(active) {
+        if(hasBeenDestroyed) {
+            renderTankExplosion(batch);
+        }
+        if(active && !hasBeenDestroyed) {
             batch.draw(texture[0][preferredDirection.getIndex() + currentFrame],
                     position.x - GameConsts.TANK_WIDTH / 2,
                     position.y - GameConsts.TANK_HEIGHT / 2, GameConsts.TANK_WIDTH, GameConsts.TANK_HEIGHT);
@@ -75,16 +78,19 @@ public class PlayerTank extends Tank{
     }
 
     public void fire() {
-        double angle = Math.toRadians(preferredDirection.getAngle());
-        gameScreen.getBulletEmitter().activate(this,
-                position.x + MathUtils.cos((float)angle)*GameConsts.TANK_WIDTH/2,
-                position.y + MathUtils.sin((float)angle)*GameConsts.TANK_WIDTH/2,
-                weapon.getBulletSpeed() * preferredDirection.getVx(),
-                weapon.getBulletSpeed() * preferredDirection.getVy(),
-                weapon.getDamage(), weapon.getBulletLifetime());
+        if(isAbleToMove) {
+            double angle = Math.toRadians(preferredDirection.getAngle());
+            gameScreen.getBulletEmitter().activate(this,
+                    position.x + MathUtils.cos((float) angle) * GameConsts.TANK_WIDTH / 2,
+                    position.y + MathUtils.sin((float) angle) * GameConsts.TANK_WIDTH / 2,
+                    weapon.getBulletSpeed() * preferredDirection.getVx(),
+                    weapon.getBulletSpeed() * preferredDirection.getVy(),
+                    weapon.getDamage(), weapon.getBulletLifetime());
+        }
     }
 
     public void update(float dt) {
+        updateTankExplosion(dt);
         rectangle.setPosition(position.x - rectangle.getWidth() / 2, position.y - rectangle.getHeight() / 2);
         checkMovement(dt);
         if(!ableToBeDamaged) {
@@ -97,10 +103,10 @@ public class PlayerTank extends Tank{
         if(active && Gdx.input.isKeyJustPressed(keysControl.getFire())) {
             fire();
         }
-
     }
 
     public void destroy(){
+        hasBeenDestroyed = true;
         if(lives > 1) {
             lives--;
             hp = hpMax;
@@ -134,6 +140,7 @@ public class PlayerTank extends Tank{
     public void getShield() {
         this.ableToBeDamaged = false;
     }
+
     public void repair() {
         if(hp < hpMax) {
             hp = hpMax;

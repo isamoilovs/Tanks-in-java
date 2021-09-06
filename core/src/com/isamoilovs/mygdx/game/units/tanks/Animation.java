@@ -30,7 +30,7 @@ public class Animation {
             frame = 0;
     }
 
-    public  TextureRegion getFrame() {
+    public TextureRegion getFrame() {
         return frames.get(frame);
     }
 }

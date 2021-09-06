@@ -163,7 +163,7 @@ public class ScoresScreen extends AbstractScreen{
     public void loadButtons() {
         Skin skin = new Skin();
         TextureRegion buttonMenu = new TextureRegion(atlas.findRegion("buttons").split(50, 50)[0][0]);
-        TextureRegion buttonClear = new TextureRegion(atlas.findRegion("simpleButton"));
+        TextureRegion buttonClear = new TextureRegion(atlas.findRegion("simpleButton1"));
 
         skin.add("buttonMenu", buttonMenu);
         skin.add("buttonClear", buttonClear);

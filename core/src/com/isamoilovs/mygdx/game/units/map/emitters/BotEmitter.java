@@ -12,7 +12,7 @@ import com.isamoilovs.mygdx.game.utils.GameConsts;
 
 public class BotEmitter {
     private BotTank[] bots;
-    public static final int MAX_BOTS_COUNT = 500;
+    public static final int MAX_BOTS_COUNT = 30;
 
     public BotTank[] getBots() {
         return bots;
@@ -38,7 +38,7 @@ public class BotEmitter {
 
 
         for(int i = 0; i < bots.length; i++) {
-            if(!bots[i].isActive()) {
+            if(!bots[i].isActive() && !bots[i].isDestroyed()) {
                 bots[i].activate(cordX, cordY);
                 break;
             }
@@ -49,6 +49,8 @@ public class BotEmitter {
         for(int i = 0; i < bots.length; i++) {
             if(bots[i].isActive()) {
                 bots[i].render(batch);
+            } else if (bots[i].isDestroyed()) {
+                bots[i].renderTankExplosion(batch);
             }
         }
     }
@@ -57,6 +59,8 @@ public class BotEmitter {
         for(int i = 0; i < bots.length; i++) {
             if(bots[i].isActive()) {
                 bots[i].update(dt);
+            } else if (bots[i].isDestroyed()) {
+                bots[i].updateTankExplosion(dt);
             }
         }
     }

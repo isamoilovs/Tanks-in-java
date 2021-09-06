@@ -16,4 +16,5 @@ public interface GameConsts {
     float TANK_WIDTH = GameConsts.MAP_DEFAULT_CELL_SIZE * 2;
     float TANK_HEIGHT = GameConsts.MAP_DEFAULT_CELL_SIZE * 2;
     float TANK_FRAME_TIME = 0.2f;
+    float BULLET_WIDTH = TANK_WIDTH / 2;
 }
