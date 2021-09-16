@@ -1,6 +1,7 @@
 package com.isamoilovs.mygdx.game.units.tanks;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -32,6 +33,8 @@ public class BotTank extends Tank {
     float currentTimeOfHunt;
     private Rectangle preferredTarget;
     float dst;
+    Music botTakeDamageMusic;
+    Music botDeathMusic;
 
     public void render(SpriteBatch batch) {
 
@@ -63,6 +66,9 @@ public class BotTank extends Tank {
 
     public BotTank(GameScreen gameScreen, TextureAtlas atlas) {
         super(gameScreen, atlas);
+        botTakeDamageMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/botTakeDamage.wav"));
+        botTakeDamageMusic.setVolume(2.0f);
+        botDeathMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/botDeath.wav"));
         this.hasBeenActivated = true;
         this.currentSpawnTime = 0.0f;
         this.spawnAnimTime = 0.4f;
@@ -200,6 +206,8 @@ public class BotTank extends Tank {
     }
 
     public void takeDamage(int damage, Tank playerTank) {
+        botTakeDamageMusic.stop();
+        botTakeDamageMusic.play();
         hp -= damage;
         if (hp <= 0) {
             destroy();
@@ -210,6 +218,8 @@ public class BotTank extends Tank {
     public void destroy(){
         hasBeenDestroyed = true;
         active = false;
+        botDeathMusic.stop();
+        botDeathMusic.play();
     }
 
     public void checkMovement(float dt) {

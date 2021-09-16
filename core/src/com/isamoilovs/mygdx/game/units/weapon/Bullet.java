@@ -1,15 +1,18 @@
 package com.isamoilovs.mygdx.game.units.weapon;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.isamoilovs.mygdx.game.units.tanks.PlayerTank;
 import com.isamoilovs.mygdx.game.utils.Animation;
 import com.isamoilovs.mygdx.game.units.tanks.Tank;
 import com.isamoilovs.mygdx.game.utils.Direction;
 import com.isamoilovs.mygdx.game.utils.GameConsts;
+import com.isamoilovs.mygdx.game.utils.TankOwner;
 
 public class Bullet {
     private Vector2 position;
@@ -19,15 +22,6 @@ public class Bullet {
     private Tank owner;
     private float currentTime;
     private float maxTime;
-
-    public void setBulletDirection(Direction bulletDirection) {
-        this.bulletDirection = bulletDirection;
-    }
-
-    public Direction getBulletDirection() {
-        return bulletDirection;
-    }
-
     private Direction bulletDirection;
     float deathTimer;
     float timeToAnimate;
@@ -43,6 +37,8 @@ public class Bullet {
         return damage;
     }
 
+    Music bulletShot;
+
     private int damage;
 
     public Vector2 getPosition() {
@@ -56,6 +52,7 @@ public class Bullet {
     public Bullet(TextureAtlas atlas) {
         this.bulletDirection = Direction.UP;
         hasBeenDestroyed = false;
+        bulletShot = Gdx.audio.newMusic(Gdx.files.internal("sounds/bulletShot.wav"));
         deathTimer = 0.0f;
         timeToAnimate = 0.3f;
         this.bulletDeathAnimation = new Animation(new TextureRegion(atlas.findRegion("explosionOfbullet16")), 3, timeToAnimate);
@@ -92,6 +89,16 @@ public class Bullet {
         }
     }
 
+
+    public void setBulletDirection(Direction bulletDirection) {
+        this.bulletDirection = bulletDirection;
+    }
+
+    public Direction getBulletDirection() {
+        return bulletDirection;
+    }
+
+
     public void activate(Tank owner, float x, float y, float vx, float vy, int damage, float maxTime) {
         this.bulletDirection = owner.getPreferredDirection();
         this.owner = owner;
@@ -110,6 +117,12 @@ public class Bullet {
     public void disActivate() {
         active = false;
         hasBeenDestroyed = true;
+        if(owner != null) {
+            if (owner.getOwnerType() == TankOwner.PLAYER) {
+                bulletShot.stop();
+                bulletShot.play();
+            }
+        }
     }
 
     public boolean isActive() {
@@ -119,12 +132,6 @@ public class Bullet {
     public void update(float dt) {
         position.mulAdd(velocity, dt);
         this.bulletRectangle.setPosition(position.x - GameConsts.BULLET_WIDTH / 2, position.y - GameConsts.BULLET_WIDTH/2);
-//
-//        currentTime += dt;
-//        if(currentTime >= maxTime) {
-//            disActivate();
-//        }
-
         if(position.x <= GameConsts.MAP_DEFAULT_DX || position.x >= Gdx.graphics.getWidth() - GameConsts.MAP_DEFAULT_DX || position.y <= GameConsts.MAP_DEFAULT_DY || position.y >= Gdx.graphics.getHeight() - GameConsts.MAP_DEFAULT_DY)
             disActivate();
     }

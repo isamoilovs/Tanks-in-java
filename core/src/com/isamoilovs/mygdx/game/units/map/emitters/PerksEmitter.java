@@ -1,6 +1,7 @@
 package com.isamoilovs.mygdx.game.units.map.emitters;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -11,6 +12,7 @@ import com.isamoilovs.mygdx.game.screens.GameScreen;
 import com.isamoilovs.mygdx.game.units.map.Map;
 import com.isamoilovs.mygdx.game.units.tanks.PlayerTank;
 import com.isamoilovs.mygdx.game.utils.GameConsts;
+import com.isamoilovs.mygdx.game.utils.TankOwner;
 
 import java.util.List;
 
@@ -24,10 +26,6 @@ public class PerksEmitter {
             this.index  = index;
             this.livingTime = livingTime;
             this.actionTime = actionTime;
-        }
-
-        public int getIndex() {
-            return index;
         }
 
         public float getActionTime() {
@@ -45,7 +43,6 @@ public class PerksEmitter {
         private boolean active;
         private Vector2 position;
         private float currentTime;
-        private int frame;
         private Rectangle perkRectangle;
 
         public PerkType getPerkType() {
@@ -80,20 +77,19 @@ public class PerksEmitter {
         }
     }
 
-    private GameScreen gameScreen;
     private static int PERKS_AMOUNT = 30;
 
 
     private Perk[] perks;
     private TextureRegion[][] perksTextures;
-    final float MAX_FRAME_TIME = 0.125f;
+    Music musicCollected;
 
     public Perk[] getPerks() {
         return perks;
     }
 
-    public PerksEmitter(GameScreen gameScreen, TextureAtlas atlas) {
-        this.gameScreen = gameScreen;
+    public PerksEmitter(TextureAtlas atlas) {
+        musicCollected = Gdx.audio.newMusic(Gdx.files.internal("sounds/collected.wav"));
         this.perksTextures = new TextureRegion(atlas.findRegion("perks16")).split(16, 16);
         this.perks = new Perk[PERKS_AMOUNT];
         for (int i = 0; i < perks.length; i++) {
@@ -143,17 +139,27 @@ public class PerksEmitter {
         for (int i = 0; i < playerTanks.size(); i++) {
             Rectangle playerRectangle = new Rectangle(playerTanks.get(i).getRectangle());
             for (int j = 0; j < perks.length; j++) {
-                Rectangle perkCircle = new Rectangle(perks[j].getPerkCircle());
-                if((perkCircle.contains(playerRectangle) || perkCircle.overlaps(playerRectangle))
+                Rectangle perkRect = new Rectangle(perks[j].getPerkCircle());
+                if((perkRect.contains(playerRectangle) || perkRect.overlaps(playerRectangle))
                         && (playerTanks.get(i).isAbleToBeDamaged())
-                        && perks[j].getPerkType() == PerksEmitter.PerkType.SHIELD) {
-                    playerTanks.get(i).getShield();
-                    perks[j].disActivate();
+                        && perks[j].getPerkType() == PerksEmitter.PerkType.SHIELD
+                        && playerTanks.get(i).getOwnerType() == TankOwner.PLAYER) {
+                    if(perks[j].isActive()) {
+                        musicCollected.pause();
+                        musicCollected.play();
+                        playerTanks.get(i).getShield();
+                        perks[j].disActivate();
+                    }
                 }
-                if((perkCircle.contains(playerRectangle) || perkCircle.overlaps(playerRectangle))
-                        && perks[j].getPerkType() == PerksEmitter.PerkType.MED_KIT) {
-                    perks[j].disActivate();
-                    playerTanks.get(i).repair();
+                if((perkRect.contains(playerRectangle) || perkRect.overlaps(playerRectangle))
+                        && perks[j].getPerkType() == PerksEmitter.PerkType.MED_KIT
+                        && playerTanks.get(i).getOwnerType() == TankOwner.PLAYER) {
+                    if(perks[j].isActive()) {
+                        musicCollected.pause();
+                        musicCollected.play();
+                        playerTanks.get(i).repair();
+                        perks[j].disActivate();
+                    }
                     break;
                 }
             }

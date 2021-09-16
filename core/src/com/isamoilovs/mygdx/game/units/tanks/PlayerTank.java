@@ -2,6 +2,7 @@ package com.isamoilovs.mygdx.game.units.tanks;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -18,17 +19,20 @@ import com.isamoilovs.mygdx.game.utils.KeysControl;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
 
 public class PlayerTank extends Tank{
+    Music fireMusic;
+    Music takeDamageMusic;
     int lives;
     KeysControl keysControl;
     int index;
     int score;
-    float shieldTime;
     float currentShieldTimer;
     StringBuilder tmpString;
     private boolean ableToBeDamaged;
 
     public PlayerTank(int index, KeysControl keysControl, GameScreen gameScreen, TextureAtlas atlas) {
         super(gameScreen, atlas);
+        fireMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/Fire.wav"));
+        takeDamageMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/playerTakeDamage.wav"));
         this.texture = atlas.findRegion("playerTankLvl1").split(GameConsts.TANK_TEXTURE_RESOLUTION, GameConsts.TANK_TEXTURE_RESOLUTION);
         this.currentShieldTimer = 0.0f;
         this.keysControl = keysControl;
@@ -79,6 +83,8 @@ public class PlayerTank extends Tank{
 
     public void fire() {
         if(isAbleToMove) {
+            fireMusic.stop();
+            fireMusic.play();
             double angle = Math.toRadians(preferredDirection.getAngle());
             gameScreen.getBulletEmitter().activate(this,
                     position.x + MathUtils.cos((float) angle) * GameConsts.TANK_WIDTH / 2,
@@ -129,11 +135,11 @@ public class PlayerTank extends Tank{
             tmpString.append("P").append(index);
             tmpString.append("\nScore:").append(score);
             tmpString.append("\nLives:").append(lives);
-            font24.draw(batch, tmpString, GameConsts.MAP_DEFAULT_DX * 5 / 4 + GameConsts.MAP_WIDTH,  Gdx.graphics.getHeight() * (0.14f - 0.1f * (index - 2)));
+            font24.draw(batch, tmpString, GameConsts.MAP_DEFAULT_DX * 10 / 9 + GameConsts.MAP_WIDTH,  Gdx.graphics.getHeight() * (0.14f - 0.1f * (index - 2)));
         } else {
             tmpString.setLength(0);
             tmpString.append("P").append(index).append("\nGame over!");
-            font24.draw(batch, tmpString, GameConsts.MAP_DEFAULT_DX * 5 / 4 + GameConsts.MAP_WIDTH,  Gdx.graphics.getHeight() * (0.14f - 0.1f * (index - 2)));
+            font24.draw(batch, tmpString, GameConsts.MAP_DEFAULT_DX * 10 / 9 + GameConsts.MAP_WIDTH,  Gdx.graphics.getHeight() * (0.14f - 0.1f * (index - 2)));
         }
     }
 
@@ -146,11 +152,17 @@ public class PlayerTank extends Tank{
     }
 
     public void repair() {
-        if(hp < hpMax) {
+        if(hp < hpMax ) {
             hp = hpMax;
         } else {
             lives++;
         }
+    }
+
+    public void takeDamage(int damage) {
+        super.takeDamage(damage);
+        takeDamageMusic.stop();
+        takeDamageMusic.play();
     }
 
     public int getLives() {
@@ -187,6 +199,8 @@ public class PlayerTank extends Tank{
                 position.y = GameConsts.MAP_DEFAULT_DY + (float) (GameConsts.TANK_HEIGHT / 2);
             }
             move(Direction.DOWN, dt);
+        } else {
+            isMoving = false;
         }
     }
 }

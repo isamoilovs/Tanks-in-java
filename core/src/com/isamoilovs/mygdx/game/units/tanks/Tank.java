@@ -13,6 +13,7 @@ import com.isamoilovs.mygdx.game.utils.GameConsts;
 import com.isamoilovs.mygdx.game.utils.TankOwner;
 
 public abstract class Tank {
+    boolean isMoving;
     float deathTimer;
     float timeToAnimate;
     Boolean isAbleToMove;
@@ -40,6 +41,7 @@ public abstract class Tank {
     }
 
     public Tank(GameScreen gameScreen, TextureAtlas atlas) {
+        this.isMoving = false;
         this.fireTimer = 0.0f;
         this.preferredDirection = Direction.UP;
         this.deathTimer = 0.0f;
@@ -62,8 +64,13 @@ public abstract class Tank {
 
     public void addScore(int amount){}
 
+    public boolean isTankMoving() {
+        return isMoving;
+    }
+
     public void move(Direction direction, float dt) {
         if(isAbleToMove) {
+            isMoving = true;
             tmp.set(position);
             tmp.add(speed * direction.getVx() * dt, speed * direction.getVy() * dt);
             if (gameScreen.getMap().isAreaClear(tmp.x, tmp.y, GameConsts.TANK_WIDTH / 2 - 2)) {

@@ -3,6 +3,7 @@ package com.isamoilovs.mygdx.game.screens;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -25,6 +26,9 @@ public class ScreenManager {
     private Camera camera;
     public static final int WORLD_WIDTH = Gdx.graphics.getWidth();
     public static final int WORLD_HEIGHT = Gdx.graphics.getHeight();
+    Music music = Gdx.audio.newMusic(Gdx.files.internal("sounds/BattleCity.mp3"));
+    Music gameOverMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/gameOver.wav"));
+    Music themeMusic = Gdx.audio.newMusic(Gdx.files.internal("sounds/8bit.mp3"));
 
     public  void init(Game game, SpriteBatch batch) {
         this.game = game;
@@ -33,7 +37,7 @@ public class ScreenManager {
         this.camera.update();
         this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         this.gameScreen = new GameScreen(batch);
-        this.menuScreen = new MenuScreen(batch);
+        this.menuScreen = new MenuScreen();
         this.gameOverScreen = new GameOverScreen(batch);
         this.scoresScreen = new ScoresScreen(batch);
     }
@@ -65,23 +69,30 @@ public class ScreenManager {
         Screen currentScreen = game.getScreen();
         switch (screenType) {
             case MENU:
+                if(!themeMusic.isPlaying()) {
+                    themeMusic.play();
+                }
                 if(currentScreen != null) {
                     currentScreen.dispose();
                 }
                 game.setScreen(menuScreen);
                 break;
             case GAME:
+                themeMusic.stop();
                 if(currentScreen != null) {
                     currentScreen.dispose();
                 }
                 gameScreen.setGameType((GameType) args[0]);
                 game.setScreen(gameScreen);
+                music.play();
                 gameScreen.setPaused(false);
                 break;
             case GAME_OVER:
                 if(currentScreen != null) {
                     currentScreen.dispose();
                 }
+                gameOverMusic.play();
+                themeMusic.play();
                 game.setScreen(gameOverScreen);
                 break;
             case SCORES:
@@ -90,11 +101,6 @@ public class ScreenManager {
                 }
                 game.setScreen(scoresScreen);
                 break;
-//            case SETTINGS:
-//                game.setScreen(settingsScreen);
-//            case MAP_REDACTOR:
-//                game.setScreen(mapRedactorScreen);
-
         }
     }
 
@@ -103,18 +109,11 @@ public class ScreenManager {
             Screen currentScreen = game.getScreen();
             switch (screenType) {
                 case GAME_OVER:
+                    gameOverMusic.play();
+                    themeMusic.play();
                     gameOverScreen.setScore(score);
                     game.setScreen(gameOverScreen);
                     break;
-
-//            case SCORES:
-//                game.setScreen(scoresScreen);
-//                break;
-//            case SETTINGS:
-//                game.setScreen(settingsScreen);
-//            case MAP_REDACTOR:
-//                game.setScreen(mapRedactorScreen);
-
             }
 
 

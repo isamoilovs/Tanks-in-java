@@ -10,25 +10,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.*;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.isamoilovs.mygdx.game.utils.GameConsts;
 import com.isamoilovs.mygdx.game.utils.GameType;
 import com.isamoilovs.mygdx.game.utils.RectDrawable;
 
 public class MenuScreen extends AbstractScreen {
-    private SpriteBatch batch;
     private TextureAtlas atlas;
     private BitmapFont font24 ;
     private Stage stage;
     private Boolean dialogFlag;
     Dialog quitGame;
-    public MenuScreen(SpriteBatch batch) {
-        this.batch = batch;
-    }
 
     @Override
     public void show() {
@@ -86,8 +80,8 @@ public class MenuScreen extends AbstractScreen {
     }
 
     public void loadButtons() {
-        atlas = new TextureAtlas("gamePack.pack");
-        font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));;
+        atlas = new TextureAtlas("images/gamePack.pack");
+        font24 = new BitmapFont(Gdx.files.internal("fonts/font24.fnt"));;
         stage = new Stage();
         quitGame = createDialog();
 

@@ -9,20 +9,13 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.*;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.*;
-import com.badlogic.gdx.scenes.scene2d.actions.TouchableAction;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField.TextFieldClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.isamoilovs.mygdx.game.utils.GameType;
 import com.isamoilovs.mygdx.game.utils.RectDrawable;
-
-import java.awt.geom.Rectangle2D;
-import java.security.Key;
 
 public class GameOverScreen extends AbstractScreen {
     private SpriteBatch batch;
@@ -31,11 +24,42 @@ public class GameOverScreen extends AbstractScreen {
     private Stage stage;
     private Boolean dialogFlag;
     private int score;
-    private String name;
     private TextField.TextFieldStyle textFieldStyle;
     private TextField textField;
     private Label label;
     private Dialog quitGame;
+
+    @Override
+    public void show() {
+        this.dialogFlag = false;
+        this.atlas = new TextureAtlas("images/gamePack.pack");
+        this.font24 = new BitmapFont(Gdx.files.internal("fonts/font24.fnt"));
+        this.stage = new Stage();
+        this.quitGame = createDialog();
+
+        this.stage.addListener(new InputListener() {
+            @Override
+            public boolean keyDown(InputEvent event, int keycode) {
+                if(keycode == Input.Keys.ENTER && !dialogFlag) {
+                    System.out.println("ENTER!!!");
+                    saveAction();
+                } else if(keycode == Input.Keys.ESCAPE) {
+                    dialogFlag =! dialogFlag;
+                    if (dialogFlag) {
+                        quitGame.show(stage);
+                    } else {
+                        quitGame.hide();
+                    }
+                } else {
+                    return false;
+                }
+                return true;
+            }
+        });
+        loadButtons();
+        Gdx.input.setInputProcessor(stage);
+    }
+
 
     public void setScore(int score) {
         this.score = score;
@@ -88,40 +112,6 @@ public class GameOverScreen extends AbstractScreen {
         return quitGame;
     }
 
-    @Override
-    public void show() {
-        dialogFlag = false;
-        atlas = new TextureAtlas("gamePack.pack");
-        font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
-        stage = new Stage();
-        quitGame = createDialog();
-
-        stage.addListener(new InputListener() {
-            @Override
-            public boolean keyDown(InputEvent event, int keycode) {
-                if(keycode == Input.Keys.ENTER && !dialogFlag) {
-                    System.out.println("ENTER!!!");
-                    saveAction();
-                } else if(keycode == Input.Keys.ESCAPE) {
-                    dialogFlag =! dialogFlag;
-                    if (dialogFlag) {
-                        quitGame.show(stage);
-                    } else {
-                        quitGame.hide();
-                    }
-                } else {
-                    return false;
-                }
-                return true;
-            }
-        });
-
-
-        name = new String();
-        loadButtons();
-        Gdx.input.setInputProcessor(stage);
-    }
-
     public void loadButtons() {
         Skin skin = new Skin();
         skin.add("simpleButton", new TextureRegion(atlas.findRegion("simpleButton")));
@@ -141,15 +131,15 @@ public class GameOverScreen extends AbstractScreen {
         textButtonStyle.font = font24;
         Image gameOverImage = new Image(skin.getDrawable("gameOverImage"));
         textField.setMessageText("Enter Your Name...");
-        textField.setSize(500, 40);
+        textField.setSize(0.26f*Gdx.graphics.getWidth(), 0.037f*Gdx.graphics.getHeight());
         textField.setMaxLength(10);
         Group group = new Group();
-        group.setWidth(500);
-        group.setHeight(500);
+        group.setWidth(0.26f*Gdx.graphics.getWidth());
+        group.setHeight(0.463f*Gdx.graphics.getHeight());
         Label.LabelStyle labelStyle = new Label.LabelStyle(font24, new Color(1.0f, 0.0f, 0.0f, 1.0f));
         label = new Label("", labelStyle);
-        label.setWidth(400);
-        label.setHeight(50);
+        label.setWidth(0.208f*Gdx.graphics.getWidth());
+        label.setHeight(0.046f*Gdx.graphics.getHeight());
         final TextButton save = new TextButton("SAVE", textButtonStyle);
         final TextButton quit = new TextButton("  QUIT WITHOUT SAVING  ", textButtonStyle);
 

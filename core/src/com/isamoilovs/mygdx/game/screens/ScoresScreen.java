@@ -41,8 +41,8 @@ public class ScoresScreen extends AbstractScreen{
 
     @Override
     public void show() {
-        atlas = new TextureAtlas("gamePack.pack");
-        font24 = new BitmapFont(Gdx.files.internal("font24.fnt"));
+        atlas = new TextureAtlas("images/gamePack.pack");
+        font24 = new BitmapFont(Gdx.files.internal("fonts/font24.fnt"));
         stage = new Stage();
         loadButtons();
         stage.addListener(new InputListener() {
@@ -136,7 +136,7 @@ public class ScoresScreen extends AbstractScreen{
 
         Container tableContainer = new Container();
         tableContainer.setSize(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 4);
-        tableContainer.setPosition((Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 4) / 2.0f, (Gdx.graphics.getHeight() - Gdx.graphics.getHeight() / 4) / 2.0f);
+        tableContainer.setPosition((Gdx.graphics.getWidth() - Gdx.graphics.getWidth() / 4) / 2.0f, (Gdx.graphics.getHeight()/2)/2.0f);
         tableContainer.fillX();
         Table table = new Table(skin);
         Label header = new Label("SCORES", labelStyleHeader);
